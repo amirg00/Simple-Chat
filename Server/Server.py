@@ -26,15 +26,102 @@ class Server:
         while True:
             client_socket, client_address = self.__listening_socket.accept()
             ip, port = client_address
-            thread = Thread(target=self.print_something, args=(port, 3, ))
+            thread = Thread(target=self.clients_service, args=(client_socket,))
             thread.start()
-            print("Simha hello")
 
-    def print_something(self, s: str, t: int):
-        for i in range(1, 11):
-            print(f"src port = {s}")
-            time.sleep(t)
+    def clients_service(self, client_socket):
+        message = client_socket.recv(1024)
+        response = self.analyse_data_by_protocol(message, client_socket)
+        client_socket.send(response.encode())
 
-    # def clients_service(self, client_socket):
+    def analyse_data_by_protocol(self, message, client_socket):
+        response = ""
+        code = message[:3]
 
+        if code == "100":
+            username_len = int(message[3:5])
+            USERNAME = message[5:]
+            valid, status = self.check_valid_username(USERNAME)
+            if valid:
+                self.__connected_clients[USERNAME] = Client(USERNAME, client_socket)
+                response = f"200{username_len}{USERNAME}"
+            else:
+                response = f"400{status}"
+            return response
 
+        elif code == "101":
+            print("request to logout...")
+            deleted = False
+            for k, v in self.__connected_clients.items():
+                if v.get_socket() is client_socket:
+                    del self.__connected_clients[k]
+                    deleted = True
+                    break
+            return "201" if deleted else 1
+
+        elif code == "102":
+            print("request for the connected users' list...")
+            Z = 0 if len(self.__connected_clients) == 0 else 1
+            if Z == 0:
+                return "20200"
+            Y = len(self.__connected_clients)
+            response = f"202{Z}{Y}"
+            for user in self.__connected_clients:
+                XX = len(user)
+                if XX < 10:
+                    XX = f"0{XX}"
+                response += f"{XX}{user}"
+            return response
+
+        elif code == "103":
+            target_username_len = int(message[3:5])
+            target_USERNAME = message[5:target_username_len]
+            MESSAGE_len = int(message[target_username_len:target_username_len + 2])
+            MESSAGE = message[target_username_len + 2:]
+            if target_USERNAME not in self.__connected_clients:
+                print("do something it is not valid!")
+            else:
+                self.__connected_clients[target_USERNAME].get_socket().send(MESSAGE.encode())
+                response = "203"
+            return response
+
+        elif code == "104":
+            broadcast_message_len = int(message[3:5])
+            broadcast_message = message[5:]
+            Z = 0 if len(self.__connected_clients) == 0 else 1
+            if Z == 0:
+                return "20400"
+            Y = len(self.__connected_clients)
+            response = f"204{Z}{Y}"
+            for user, client in self.__connected_clients.items():
+                client.get_socket().send(broadcast_message.encode())
+                XX = len(user)
+                if XX < 10:
+                    XX = f"0{XX}"
+                response += f"{XX}{user}"
+            return response
+
+        elif code == "105":
+            print("request for the files list of the server...")
+
+        elif code == "106":
+            file_size = int(message[3:5])
+            FILENAME = message[5:]
+
+    def check_valid_username(self, username: str):
+        """
+        The method checks whether the username is not already existed,
+        and that his length doesn't descend 2.
+        :param username: a given username.
+        :return: true if the username is valid and can be added, o.w. returns false.
+        """
+        if len(username) < 2:
+            return False, 1
+
+        if username in self.__connected_clients:
+            return False, 2
+
+        if len(self.__connected_clients) == self.__users_max_amount:
+            return False, 3
+
+        return True, 0
