@@ -34,3 +34,7 @@ class Server:
         for i in range(1, 11):
             print(f"src port = {s}")
             time.sleep(t)
+
+    # def clients_service(self, client_socket):
+
+
