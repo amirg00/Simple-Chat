@@ -30,19 +30,23 @@ class Server:
             thread.start()
 
     def clients_service(self, client_socket):
-        message = client_socket.recv(1024)
+        message = client_socket.recv(1024).decode()
+        print(message)
         response = self.analyse_data_by_protocol(message, client_socket)
+        print(response)
         client_socket.send(response.encode())
 
     def analyse_data_by_protocol(self, message, client_socket):
         response = ""
         code = message[:3]
-
+        print(message)
+        print(code)
         if code == "100":
-            username_len = int(message[3:5])
+            username_len = message[3:5]
             USERNAME = message[5:]
             valid, status = self.check_valid_username(USERNAME)
             if valid:
+                self.send_broadcast_message(300, USERNAME, username_len, "", "")
                 self.__connected_clients[USERNAME] = Client(USERNAME, client_socket)
                 response = f"200{username_len}{USERNAME}"
             else:
@@ -56,6 +60,7 @@ class Server:
                 if v.get_socket() is client_socket:
                     del self.__connected_clients[k]
                     deleted = True
+                    self.send_broadcast_message(301, k, self.fix_len(len(k)), "", "")
                     break
             return "201" if deleted else 1
 
@@ -79,6 +84,7 @@ class Server:
             MESSAGE_len = int(message[target_username_len:target_username_len + 2])
             MESSAGE = message[target_username_len + 2:]
             if target_USERNAME not in self.__connected_clients:
+                response = f"403{1}"
                 print("do something it is not valid!")
             else:
                 self.__connected_clients[target_USERNAME].get_socket().send(MESSAGE.encode())
@@ -96,9 +102,7 @@ class Server:
             for user, client in self.__connected_clients.items():
                 client.get_socket().send(broadcast_message.encode())
                 XX = len(user)
-                if XX < 10:
-                    XX = f"0{XX}"
-                response += f"{XX}{user}"
+                response += f"{self.fix_len(XX)}{user}"
             return response
 
         elif code == "105":
@@ -125,3 +129,15 @@ class Server:
             return False, 3
 
         return True, 0
+
+    def send_broadcast_message(self, code, username, user_len, message, msg_len):
+        if code == "300" or code == "301":
+            for client in self.__connected_clients.values():
+                client.get_socket().send(f"{code}{user_len}{username}")
+
+        elif code == "303":
+            for client in self.__connected_clients.values():
+                client.get_socket().send(f"{code}{user_len}{username}{msg_len}{message}")
+
+    def fix_len(self, XX: int):
+        return f"0{XX}" if XX < 10 else f"{XX}"
