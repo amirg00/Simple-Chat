@@ -7,17 +7,18 @@ EXIT_OPTION = 0
 MIN_OPTION = 0
 MAX_OPTION = 3
 
-
-def listen_to_server()
-    pass
-
-
 def users_list_handler():
     msg = GET + USERS_LIST_CODE
     
     # TODO: sending msg to server,
-    #       and get answer about users list.
-    
+    #       and get answer about users list,
+    #       and send it to analysis.
+
+def send_msg_handler():
+    pass
+
+def send_msg_broadcast_handler():
+    pass     
 
 def logic(option):
     if option is SEND_MSG_OPTION:

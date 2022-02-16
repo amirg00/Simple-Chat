@@ -48,8 +48,6 @@ def main():
     
     username = get_username()
     
-    # TODO: start thread for server updates by socket.
-    
     choice = -1
     
     while(choice is not logic.EXIT_OPTION):
