@@ -6,3 +6,13 @@ EXIT_OPTION = 0
 
 MIN_OPTION = 0
 MAX_OPTION = 3
+
+def logic(option):
+    if option is SEND_MSG_OPTION:
+        send_msg_handler()
+    elif option is SEND_BROADCAST_MSG_OPTION:
+        send_msg_broadcast_handler()
+    elif option is USERS_LIST_OPTION:
+        users_list_handler()
+    else:
+        disconnect_handler()
