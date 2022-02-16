@@ -29,7 +29,7 @@ def analysis_confirms_msg(type_code, msg):
         users_exist = int(msg[:1])
         msg = msg[1:]
         if users_exist:
-            users_amount = msg[:1]
+            users_amount = int(msg[:1])
             msg = msg[1:]
             print("Users in chat: ")
             for i in range(users_amount):
@@ -50,7 +50,7 @@ def analysis_confirms_msg(type_code, msg):
         users_exist = int(msg[:1])
         msg = msg[1:]
         if users_exist:
-            users_amount = msg[:1]
+            users_amount = int(msg[:1])
             msg = msg[1:]
             print("Users was get your message: ")
             for i in range(users_amount):

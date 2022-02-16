@@ -57,11 +57,12 @@ def main():
     username = get_username()
     
     # connect to chat
-    msg = "100" + str(len(username)) + username
+    msg = "100" + str(len(username)).zfill(2) + username
+    print(msg)
     sock.sendall(msg.encode())
     ans = sock.recv(1024).decode()
     print(ans)
-    ans = "20006simcha" # until server will fixed for this msg
+    #ans = "20006simcha" # until server will fixed for this msg
     
     while analysis_unit.analysis_msg_main(ans) is not True:
         username = get_username()
