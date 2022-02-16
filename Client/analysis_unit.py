@@ -14,18 +14,18 @@ SEND_BROADCAST_MSG_CODE = "04"     #
 #----------------------------------#
     
 def analysis_confirms_msg(type_code, msg):
-    if type_code is CONNECT_CODE:
+    if type_code == CONNECT_CODE:
         username_len = int(msg[:2])
         msg = msg[2:]
         username = msg[:username_len]    
         print(f"Connect to server sucsses! your username is {username}")
         return True
     
-    if type_code is DISCONNECT_CODE:
+    if type_code == DISCONNECT_CODE:
         print("Logout success.")
         return True
     
-    if type_code is USERS_LIST_CODE:
+    if type_code == USERS_LIST_CODE:
         users_exist = int(msg[:1])
         msg = msg[1:]
         if users_exist:
@@ -42,11 +42,11 @@ def analysis_confirms_msg(type_code, msg):
             print("You are the only person in the chat!")
             return False
     
-    if type_code is SEND_MSG_CODE:
+    if type_code == SEND_MSG_CODE:
         print("Your message was sent!")
         return True
     
-    if type_code is SEND_BROADCAST_MSG_CODE:
+    if type_code == SEND_BROADCAST_MSG_CODE:
         users_exist = int(msg[:1])
         msg = msg[1:]
         if users_exist:
@@ -64,7 +64,7 @@ def analysis_confirms_msg(type_code, msg):
             return False    
 
 def analysis_updates_msg(type_code, msg):
-    if type_code is SEND_MSG_CODE:
+    if type_code == SEND_MSG_CODE:
         username_len = int(msg[:2])
         msg = msg[2:]
         
@@ -80,20 +80,20 @@ def analysis_updates_msg(type_code, msg):
     
     
 def analysis_errors_msg(type_code, msg):
-    if type_code is CONNECT_CODE:
+    if type_code == CONNECT_CODE:
         error_type = msg[:1]
-        if error_type is "1":
+        if error_type == "1":
             print("Invalid username!")
-        elif error_type is "2":
+        elif error_type == "2":
             print("Username was taken!")
-        elif error_type is "3":
+        elif error_type == "3":
             print("Server full! please try again later...")
         else:
             pass
-    elif trye_code is SEND_MSG_CODE:
+    elif trye_code == SEND_MSG_CODE:
         error_type = msg[:1]
-            if error_type is "1":
-                print("Your target is not connect!")
+        if error_type == "1":
+            print("Your target is not connect!")
     else:
         pass
     
@@ -108,11 +108,11 @@ def analysis_msg_main(msg):
     type_code = msg[:2]
     msg = msg[2:]
     
-    if code is CONFIRM:
+    if code == CONFIRM:
         return analysis_confirms_msg(type_code, msg)
-    if code is UPDATE:
+    if code == UPDATE:
         return analysis_updates_msg(type_code, msg)
-    if code is ERROR:
+    if code == ERROR:
         return analysis_errors_msg(type_code, msg)
     
     printf(f"Woops, error. this is msg make it: {code + type_code + msg}")
