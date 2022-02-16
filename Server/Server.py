@@ -25,16 +25,19 @@ class Server:
         self.__listening_socket.listen(self.__users_max_amount)
         while True:
             client_socket, client_address = self.__listening_socket.accept()
-            ip, port = client_address
             thread = Thread(target=self.clients_service, args=(client_socket,))
             thread.start()
 
     def clients_service(self, client_socket):
-        message = client_socket.recv(1024).decode()
-        # print(message)
-        response = self.analyse_data_by_protocol(message, client_socket)
-        print(response)
-        client_socket.send(response.encode())
+        while True:
+            message = client_socket.recv(1024).decode()
+            # print(message)
+            response = self.analyse_data_by_protocol(message, client_socket)
+            client_socket.send(response.encode())
+            print(response)
+            if response[:3] == f"{Protocol.GET}{Protocol.DISCONNECT}":
+                client_socket.close()
+                break
 
     def analyse_data_by_protocol(self, message, client_socket):
         response = ""
@@ -46,7 +49,6 @@ class Server:
             USERNAME = message[5:]
             valid, status = self.check_valid_username(USERNAME)
             if valid:
-                self.send_broadcast_message(300, USERNAME, username_len, "", "")
                 self.__connected_clients[USERNAME] = Client(USERNAME, client_socket)
                 response = f"{Protocol.CONFIRM}{Protocol.CONNECT}{username_len}{USERNAME}"
             else:
@@ -60,18 +62,19 @@ class Server:
                 if v.get_socket() is client_socket:
                     del self.__connected_clients[k]
                     deleted = True
-                    self.send_broadcast_message(301, k, self.fix_len(len(k)), "", "")
                     break
             return f"{Protocol.CONFIRM}{Protocol.DISCONNECT}" if deleted else 1
 
         elif code == f"{Protocol.GET}{Protocol.USERS_LIST}":
             print("request for the connected users' list...")
-            Z = 0 if len(self.__connected_clients) == 0 else 1
+            Z = 0 if len(self.__connected_clients) == 1 else 1
             if Z == 0:
-                return f"{Protocol.CONFIRM}{Protocol.USERS_LIST}{00}"
+                return f"{Protocol.CONFIRM}{Protocol.USERS_LIST}{Z}"
             Y = len(self.__connected_clients)
             response = f"{Protocol.CONFIRM}{Protocol.USERS_LIST}{Z}{Y}"
-            for user in self.__connected_clients:
+            for user, sock in self.__connected_clients.items():
+                if sock == client_socket:
+                    continue
                 XX = len(user)
                 response += f"{self.fix_len(XX)}{user}"
             return response
