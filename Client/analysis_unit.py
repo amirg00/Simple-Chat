@@ -80,7 +80,24 @@ def analysis_updates_msg(type_code, msg):
     
     
 def analysis_errors_msg(type_code, msg):
-    pass
+    if type_code is CONNECT_CODE:
+        error_type = msg[:1]
+        if error_type is "1":
+            print("Invalid username!")
+        elif error_type is "2":
+            print("Username was taken!")
+        elif error_type is "3":
+            print("Server full! please try again later...")
+        else:
+            pass
+    elif trye_code is SEND_MSG_CODE:
+        error_type = msg[:1]
+            if error_type is "1":
+                print("Your target is not connect!")
+    else:
+        pass
+    
+    return False    
 
 def analysis_msg_main(msg):
     # get msg code
