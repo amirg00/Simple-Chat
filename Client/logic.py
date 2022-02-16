@@ -1,3 +1,5 @@
+import analysis_unit as analysis
+
 # options
 SEND_MSG_OPTION = 1
 SEND_BROADCAST_MSG_OPTION = 2
@@ -8,7 +10,7 @@ MIN_OPTION = 0
 MAX_OPTION = 3
 
 def users_list_handler():
-    msg = GET + USERS_LIST_CODE
+    msg = analysis.GET + analysis.USERS_LIST_CODE
     
     # TODO: sending msg to server,
     #       and get answer about users list,
