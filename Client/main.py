@@ -2,6 +2,13 @@ import socket
 from threading import Thread
 #import logic
 
+MIN_USERNAME_LEN = 4
+MAX_USERNAME_LEN = 10
+
+def is_valid_username(username):
+    return MIN_USERNAME_LEN <= len(username) <= MAX_USERNAME_LEN
+
+
 def main():
     
     # TODO: connect to server
