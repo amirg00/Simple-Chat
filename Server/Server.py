@@ -31,10 +31,16 @@ class Server:
     def clients_service(self, client_socket):
         while True:
             message = client_socket.recv(1024).decode()
-            # print(message)
+            print(message)
+            try:
+                if "\n" in message:
+                    continue
+            except:
+                pass
+            print("bla bla bla")
             response = self.analyse_data_by_protocol(message, client_socket)
-            client_socket.send(response.encode())
             print(response)
+            client_socket.send(response.encode())
             if response[:3] == f"{Protocol.GET}{Protocol.DISCONNECT}":
                 client_socket.close()
                 break
@@ -43,7 +49,7 @@ class Server:
         response = ""
         code = message[:3]
         print(message)
-        print(f"{Protocol.GET}")
+        # print(f"{Protocol.GET}")
         if code == f"{Protocol.GET}{Protocol.CONNECT}":
             username_len = message[3:5]
             USERNAME = message[5:]
@@ -70,10 +76,11 @@ class Server:
             Z = 0 if len(self.__connected_clients) == 1 else 1
             if Z == 0:
                 return f"{Protocol.CONFIRM}{Protocol.USERS_LIST}{Z}"
-            Y = len(self.__connected_clients)
+            Y = len(self.__connected_clients) - 1
             response = f"{Protocol.CONFIRM}{Protocol.USERS_LIST}{Z}{Y}"
-            for user, sock in self.__connected_clients.items():
-                if sock == client_socket:
+            for user, client in self.__connected_clients.items():
+                print(f"{client.get_socket()}, {client_socket}")
+                if client.get_socket() is client_socket:
                     continue
                 XX = len(user)
                 response += f"{self.fix_len(XX)}{user}"
@@ -81,14 +88,18 @@ class Server:
 
         elif code == f"{Protocol.GET}{Protocol.SEND_MESSAGE}":
             target_username_len = int(message[3:5])
-            target_USERNAME = message[5:target_username_len]
-            MESSAGE_len = int(message[target_username_len:target_username_len + 2])
-            MESSAGE = message[target_username_len + 2:]
+            message = message[5:]
+            target_USERNAME = message[:target_username_len]
+            message = message[target_username_len:]
+            MESSAGE_len = message[:2]
+            MESSAGE = message[2:]
             if target_USERNAME not in self.__connected_clients:
                 response = f"{Protocol.ERROR}{Protocol.SEND_MESSAGE}{1}"
                 print("do something it is not valid!")
             else:
-                self.__connected_clients[target_USERNAME].get_socket().send(MESSAGE.encode())
+                USERNAME = self.get_name_by_socket(client_socket)
+                res_to_tar = f"{Protocol.UPDATE}{Protocol.SEND_MESSAGE}{self.fix_len(len(USERNAME))}{USERNAME}{MESSAGE_len.zfill(2)}{MESSAGE}"
+                self.__connected_clients[target_USERNAME].get_socket().send(res_to_tar.encode())
                 response = f"{Protocol.CONFIRM}{Protocol.SEND_MESSAGE}"
             return response
 
@@ -142,3 +153,8 @@ class Server:
 
     def fix_len(self, XX: int):
         return f"0{XX}" if XX < 10 else f"{XX}"
+
+    def get_name_by_socket(self, sock):
+        for username, value in self.__connected_clients.items():
+            if value.get_socket() is sock:
+                return username
