@@ -12,9 +12,6 @@ USERS_LIST_CODE = "02"             #
 SEND_MSG_CODE = "03"               #
 SEND_BROADCAST_MSG_CODE = "04"     #
 #----------------------------------#
-
-def create_gets_msg(type_code, src = "", dst = "", msg = ""):  
-    pass
     
 def analysis_confirms_msg(type_code, msg):
     if type_code is CONNECT_CODE:
@@ -67,7 +64,20 @@ def analysis_confirms_msg(type_code, msg):
             return False    
 
 def analysis_updates_msg(type_code, msg):
-    pass
+    if type_code is SEND_MSG_CODE:
+        username_len = int(msg[:2])
+        msg = msg[2:]
+        
+        username = msg[:username_len]
+        msg = msg[username_len:]
+        
+        new_msg_len = msg[:2]
+        msg = msg[2:]
+
+        new_msg = msg[:new_msg_len]
+        print(f"{username}: {new_msg}")
+        return True    
+    
     
 def analysis_errors_msg(type_code, msg):
     pass
@@ -81,14 +91,12 @@ def analysis_msg_main(msg):
     type_code = msg[:2]
     msg = msg[2:]
     
-    if code is GET:
-        analysis_gets_msg(type_code, msg)
-    elif code is CONFIRM:
-        analysis_confirms_msg(type_code, msg)
-    elif code is UPDATE:
-        analysis_updates_msg(type_code, msg)
-    elif code is ERROR:
-        analysis_errors_msg(type_code, msg)
-    else:
-        printf(f"Woops, error. this is msg make it {code + type_code + msg}")
-        exit()
+    if code is CONFIRM:
+        return analysis_confirms_msg(type_code, msg)
+    if code is UPDATE:
+        return analysis_updates_msg(type_code, msg)
+    if code is ERROR:
+        return analysis_errors_msg(type_code, msg)
+    
+    printf(f"Woops, error. this is msg make it: {code + type_code + msg}")
+    exit()
