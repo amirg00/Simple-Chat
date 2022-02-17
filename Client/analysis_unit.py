@@ -102,6 +102,7 @@ def analysis_updates_msg(type_code, msg):
         username_len = int(msg[:2])
         msg = msg[2:]  
         username = msg[:username_len]
+        connected_users_list.append(username)
         
         return type_code, username       
     
@@ -111,6 +112,7 @@ def analysis_updates_msg(type_code, msg):
         username_len = int(msg[:2])
         msg = msg[2:]  
         username = msg[:username_len]
+        connected_users_list.remove(username)
         
         return type_code, username
     
