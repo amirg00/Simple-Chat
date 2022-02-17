@@ -104,17 +104,21 @@ class Server:
             return response
 
         elif code == f"{Protocol.GET}{Protocol.SEND_BROADCAST_MESSAGE}":
-            broadcast_message_len = int(message[3:5])
+            USERNAME = self.get_name_by_socket(client_socket)
+            broadcast_message_len = message[3:5]
             broadcast_message = message[5:]
-            Z = 0 if len(self.__connected_clients) == 0 else 1
+            Z = 0 if len(self.__connected_clients) == 1 else 1
             if Z == 0:
-                return f"{Protocol.CONFIRM}{Protocol.SEND_BROADCAST_MESSAGE}{00}"
-            Y = len(self.__connected_clients)
+                return f"{Protocol.CONFIRM}{Protocol.SEND_BROADCAST_MESSAGE}{Z}"
+            Y = len(self.__connected_clients) - 1
             response = f"{Protocol.CONFIRM}{Protocol.SEND_BROADCAST_MESSAGE}{Z}{Y}"
-            for user, client in self.__connected_clients.items():
-                client.get_socket().send(broadcast_message.encode())
-                XX = len(user)
-                response += f"{self.fix_len(XX)}{user}"
+            for username, client in self.__connected_clients.items():
+                if client.get_socket() is client_socket:
+                    continue
+                tar_msg = f"{Protocol.UPDATE}{Protocol.SEND_BROADCAST_MESSAGE}{self.fix_len(len(USERNAME))}{USERNAME}{broadcast_message_len.zfill(2)}{broadcast_message}"
+                client.get_socket().send(tar_msg.encode())
+                XX = len(username)
+                response += f"{self.fix_len(XX)}{username}"
             return response
 
         elif code == f"{Protocol.GET}{Protocol.FILES_LIST}":
