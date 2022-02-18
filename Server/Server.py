@@ -19,6 +19,9 @@ class Server:
         self.__listening_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.__connected_clients = {}
         self.__users_max_amount = 5
+        self.allocated_ports = {}
+        for port in range(55000, 55016):
+            self.allocated_ports[port] = True
 
     def start_listen(self):
         self.__listening_socket.bind(('', self.__listening_port))
@@ -37,8 +40,9 @@ class Server:
                     continue
             except:
                 pass
-            print("bla bla bla")
             response = self.analyse_data_by_protocol(message, client_socket)
+            if response is None:
+                continue
             print(response)
             client_socket.send(response.encode())
             if response[:3] == f"{Protocol.GET}{Protocol.DISCONNECT}":
@@ -55,8 +59,17 @@ class Server:
             USERNAME = message[5:]
             valid, status = self.check_valid_username(USERNAME)
             if valid:
-                self.__connected_clients[USERNAME] = Client(USERNAME, client_socket)
-                response = f"{Protocol.CONFIRM}{Protocol.CONNECT}{username_len}{USERNAME}"
+                alloc_PORT = self.get_available_port()
+                listening_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                listening_sock.bind(('', alloc_PORT))
+                listening_sock.listen(1)
+                response = f"{Protocol.CONFIRM}{Protocol.CONNECT}{username_len.zfill(2)}{USERNAME}{alloc_PORT}"
+                client_socket.send(response.encode())
+                client_socket_300, client_address = listening_sock.accept()
+                listening_sock.close()
+                self.__connected_clients[USERNAME] = Client(USERNAME, client_socket, client_socket_300)
+                self.send_broadcast_message(f"{Protocol.UPDATE}{Protocol.CONNECT}", USERNAME, username_len.zfill(2), "", "")
+                response = None
             else:
                 response = f"{Protocol.ERROR}{Protocol.CONNECT}{status}"
             return response
@@ -64,10 +77,11 @@ class Server:
         elif code == f"{Protocol.GET}{Protocol.DISCONNECT}":
             print("request to logout...")
             deleted = False
-            for k, v in self.__connected_clients.items():
-                if v.get_socket() is client_socket:
-                    del self.__connected_clients[k]
+            for user, client in self.__connected_clients.items():
+                if client.get_socket() is client_socket:
+                    del self.__connected_clients[user]
                     deleted = True
+                    self.send_broadcast_message(f"{Protocol.UPDATE}{Protocol.DISCONNECT}", user, self.fix_len(len(user)), "", "")
                     break
             return f"{Protocol.CONFIRM}{Protocol.DISCONNECT}" if deleted else 1
 
@@ -116,7 +130,7 @@ class Server:
                 if client.get_socket() is client_socket:
                     continue
                 tar_msg = f"{Protocol.UPDATE}{Protocol.SEND_BROADCAST_MESSAGE}{self.fix_len(len(USERNAME))}{USERNAME}{broadcast_message_len.zfill(2)}{broadcast_message}"
-                client.get_socket().send(tar_msg.encode())
+                client.get_listening_socket().send(tar_msg.encode())
                 XX = len(username)
                 response += f"{self.fix_len(XX)}{username}"
             return response
@@ -148,12 +162,16 @@ class Server:
 
     def send_broadcast_message(self, code, username, user_len, message, msg_len):
         if code == f"{Protocol.UPDATE}{Protocol.CONNECT}" or code == f"{Protocol.UPDATE}{Protocol.DISCONNECT}":
-            for client in self.__connected_clients.values():
-                client.get_socket().send(f"{code}{user_len}{username}")
+            for user, client in self.__connected_clients.items():
+                if user == username:
+                    continue
+                client.get_listening_socket().send(f"{code}{user_len}{username}")
 
         elif code == f"{Protocol.UPDATE}{Protocol.SEND_MESSAGE}":
-            for client in self.__connected_clients.values():
-                client.get_socket().send(f"{code}{user_len}{username}{msg_len}{message}")
+            for user, client in self.__connected_clients.items():
+                if user == username:
+                    continue
+                client.get_listening_socket().send(f"{code}{user_len}{username}{msg_len}{message}")
 
     def fix_len(self, XX: int):
         return f"0{XX}" if XX < 10 else f"{XX}"
@@ -162,3 +180,18 @@ class Server:
         for username, value in self.__connected_clients.items():
             if value.get_socket() is sock:
                 return username
+
+    def get_available_port(self):
+        """
+        The method looks for a new available port, to allocate for the client's secondary socket.
+        If there is an available port, then the function returns it, and right afterwards alters
+        the port's value in the dictionary to False (means: this port is unavailable).
+        If there is nothing to be found, i.e. there isn't a compatible port for the client,
+        then we return that there is an error (-1 value).
+        :return: the port which has allocated for the user sec's socket.
+        """
+        for port, available in self.allocated_ports.items():
+            if available:
+                self.allocated_ports[port] = False
+                return port
+        return -1
