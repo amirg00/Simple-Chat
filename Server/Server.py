@@ -84,7 +84,6 @@ class Server:
                     self.redeem_user_port(user)
                     client.get_server_listening_socket().close()
                     client.get_listening_socket().close()
-                    client.get_socket().close()
                     del self.__connected_clients[user]
                     deleted = True
                     self.send_broadcast_message(f"{Protocol.UPDATE}{Protocol.DISCONNECT}", user, self.fix_len(len(user)), "", "")
