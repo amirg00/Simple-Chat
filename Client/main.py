@@ -111,7 +111,7 @@ def main():
     port = log_in_to_chat(sock)
    
     # listen to incoming msg from server
-    thread = Thread(target=listen_to_server, args=(port))
+    thread = Thread(target=listen_to_server, args=(port, ))
     thread.start()
     
     # main loop for client

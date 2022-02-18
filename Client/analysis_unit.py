@@ -43,6 +43,7 @@ def analysis_confirms_msg(type_code, msg):
     # for msg start with 202
     if type_code == USERS_LIST_CODE:
         # reset list
+        global connected_users_list
         connected_users_list = []
         
         # check if there friends in chat rigth now
@@ -58,6 +59,7 @@ def analysis_confirms_msg(type_code, msg):
                 username_len = int(msg[:2])
                 msg = msg[2:]
                 username = msg[:username_len]
+                msg = msg[username_len:]
                 connected_users_list.append(username) # update users list
                 #print(username) --TRY WITHOUT PRINTING
             return True
@@ -83,6 +85,7 @@ def analysis_confirms_msg(type_code, msg):
                 username_len = int(msg[:2])
                 msg = msg[2:]
                 username = msg[:username_len]
+                msg = msg[username_len:]
                 #print(username) --TRY WITHOUT PRINTING
                 users_got_msg.append(username)
 

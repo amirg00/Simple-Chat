@@ -10,17 +10,17 @@ EXIT_OPTION = 0
 MIN_OPTION = 0
 MAX_OPTION = 3
 
-def users_list_handler():#(sock):
-    #msg = analysis.GET + analysis.USERS_LIST_CODE
-    #msg = msg.encode()
-    #print(msg.decode())
-    #sock.sendall(msg)
-    #ans = sock.recv(1024).decode()
-    #print(ans)
-    #list_of_users = analysis.analysis_msg_main(ans)
+def users_list_handler(sock):
+    msg = analysis.GET + analysis.USERS_LIST_CODE
+    msg = msg.encode()
+    print(msg.decode())
+    sock.sendall(msg)
+    ans = sock.recv(1024).decode()
+    print(ans)
+    users_exist = analysis.analysis_msg_main(ans)
     
-    if(analysis.connected_users_list):
-        print(f"user in the chat: {list_of_user}")
+    if(users_exist):
+        print(f"user in the chat: {analysis.connected_users_list}")
         return True
     else:
         print("You are the only user in the chat")
@@ -43,8 +43,8 @@ def send_msg_handler(sock):
 
 def send_msg_broadcast_handler(sock):
     msg_to_everyone = input("Enter message for everyone: ")
-    msg_to_everyone_len = str(len(msg_to_user))
-    msg = analysis.GET + analysis.SEND_BROADCAST_MSG_OPTION + msg_to_everyone_len.zfill(2) + msg_to_everyone
+    msg_to_everyone_len = str(len(msg_to_everyone))
+    msg = analysis.GET + analysis.SEND_BROADCAST_MSG_CODE + msg_to_everyone_len.zfill(2) + msg_to_everyone
     msg = msg.encode() 
     print(msg.decode())
     # send it to server
@@ -52,12 +52,22 @@ def send_msg_broadcast_handler(sock):
     ans = sock.recv(1024).decode()
     print(analysis.analysis_msg_main(ans))
 
+def disconnect_handler(sock):
+    msg = analysis.GET + analysis.DISCONNECT_CODE
+    msg = msg.encode()
+    sock.sendall(msg)
+    ans = sock.recv(1024).decode()
+    if analysis.analysis_msg_main(ans):
+        sock.close()
+    
+    
+
 def logic(option, sock):
     if option is SEND_MSG_OPTION:
         send_msg_handler(sock)
     elif option is SEND_BROADCAST_MSG_OPTION:
         send_msg_broadcast_handler(sock)
     elif option is USERS_LIST_OPTION:
-        users_list_handler()
+        users_list_handler(sock)
     else:
         disconnect_handler(sock)
