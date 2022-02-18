@@ -66,7 +66,7 @@ class Server:
                 response = f"{Protocol.CONFIRM}{Protocol.CONNECT}{username_len.zfill(2)}{USERNAME}{alloc_PORT}"
                 client_socket.send(response.encode())
                 client_socket_300, client_address = listening_sock.accept()
-                listening_sock.close()
+                # listening_sock.close()
                 self.__connected_clients[USERNAME] = Client(USERNAME, client_socket, client_socket_300).set_PORT(alloc_PORT)
                 self.send_broadcast_message(f"{Protocol.UPDATE}{Protocol.CONNECT}", USERNAME, username_len.zfill(2), "", "")
                 response = None
