@@ -119,7 +119,7 @@ class Server:
             else:
                 USERNAME = self.get_name_by_socket(client_socket)
                 res_to_tar = f"{Protocol.UPDATE}{Protocol.SEND_MESSAGE}{self.fix_len(len(USERNAME))}{USERNAME}{MESSAGE_len.zfill(2)}{MESSAGE}"
-                self.__connected_clients[target_USERNAME].get_socket().send(res_to_tar.encode())
+                self.__connected_clients[target_USERNAME].get_listening_socket().send(res_to_tar.encode())
                 response = f"{Protocol.CONFIRM}{Protocol.SEND_MESSAGE}"
             return response
 
