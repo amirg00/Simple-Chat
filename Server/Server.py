@@ -67,7 +67,7 @@ class Server:
                 # client_socket.send(response.encode())
                 client_socket_300, client_address = listening_sock.accept()
                 # listening_sock.close()
-                curr_client = Client(USERNAME, client_socket, client_socket_300)
+                curr_client = Client(USERNAME, client_socket, client_socket_300, listening_sock)
                 curr_client.set_PORT(alloc_PORT)
                 self.__connected_clients[USERNAME] = curr_client
                 self.send_broadcast_message(f"{Protocol.UPDATE}{Protocol.CONNECT}", USERNAME, username_len.zfill(2), "", "")
@@ -82,6 +82,9 @@ class Server:
             for user, client in self.__connected_clients.items():
                 if client.get_socket() is client_socket:
                     self.redeem_user_port(user)
+                    client.get_server_listening_socket().close()
+                    client.get_listening_socket().close()
+                    client.get_socket().close()
                     del self.__connected_clients[user]
                     deleted = True
                     self.send_broadcast_message(f"{Protocol.UPDATE}{Protocol.DISCONNECT}", user, self.fix_len(len(user)), "", "")

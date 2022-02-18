@@ -5,11 +5,12 @@ import threading
 
 class Client(threading.Thread):
 
-    def __init__(self, name, socket, listening_socket):
+    def __init__(self, name, socket, listening_socket, server_listening_socket):
         threading.Thread.__init__(self)
         self.__name = name
         self.__socket = socket
         self.__listening_socket = listening_socket
+        self.__server_listening_socket = server_listening_socket
         self.__PORT = -1
 
     def get_name(self):
@@ -29,6 +30,9 @@ class Client(threading.Thread):
         :return: client's secondary socket, which listen for incoming (broadcast) chat messages.
         """
         return self.__listening_socket
+
+    def get_server_listening_socket(self):
+        return self.__server_listening_socket
 
     def get_PORT(self):
         """
