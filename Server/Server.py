@@ -171,13 +171,13 @@ class Server:
             for user, client in self.__connected_clients.items():
                 if user == username:
                     continue
-                client.get_listening_socket().send(f"{code}{user_len}{username}")
+                client.get_listening_socket().send(f"{code}{user_len}{username}".encode())
 
         elif code == f"{Protocol.UPDATE}{Protocol.SEND_MESSAGE}":
             for user, client in self.__connected_clients.items():
                 if user == username:
                     continue
-                client.get_listening_socket().send(f"{code}{user_len}{username}{msg_len}{message}")
+                client.get_listening_socket().send(f"{code}{user_len}{username}{msg_len}{message}".encode())
 
     def fix_len(self, XX: int):
         return f"0{XX}" if XX < 10 else f"{XX}"
