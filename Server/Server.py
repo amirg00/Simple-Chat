@@ -63,13 +63,15 @@ class Server:
                 listening_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 listening_sock.bind(('', alloc_PORT))
                 listening_sock.listen(1)
-                response = f"{Protocol.CONFIRM}{Protocol.CONNECT}{username_len.zfill(2)}{USERNAME}{alloc_PORT}"
-                client_socket.send(response.encode())
+                # response = f"{Protocol.CONFIRM}{Protocol.CONNECT}{username_len.zfill(2)}{USERNAME}{alloc_PORT}"
+                # client_socket.send(response.encode())
                 client_socket_300, client_address = listening_sock.accept()
                 # listening_sock.close()
-                self.__connected_clients[USERNAME] = Client(USERNAME, client_socket, client_socket_300).set_PORT(alloc_PORT)
+                curr_client = Client(USERNAME, client_socket, client_socket_300)
+                curr_client.set_PORT(alloc_PORT)
+                self.__connected_clients[USERNAME] = curr_client
                 self.send_broadcast_message(f"{Protocol.UPDATE}{Protocol.CONNECT}", USERNAME, username_len.zfill(2), "", "")
-                response = None
+                response = f"{Protocol.CONFIRM}{Protocol.CONNECT}{username_len.zfill(2)}{USERNAME}{alloc_PORT}"
             else:
                 response = f"{Protocol.ERROR}{Protocol.CONNECT}{status}"
             return response
