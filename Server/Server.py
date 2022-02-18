@@ -67,7 +67,7 @@ class Server:
                 client_socket.send(response.encode())
                 client_socket_300, client_address = listening_sock.accept()
                 listening_sock.close()
-                self.__connected_clients[USERNAME] = Client(USERNAME, client_socket, client_socket_300)
+                self.__connected_clients[USERNAME] = Client(USERNAME, client_socket, client_socket_300).set_PORT(alloc_PORT)
                 self.send_broadcast_message(f"{Protocol.UPDATE}{Protocol.CONNECT}", USERNAME, username_len.zfill(2), "", "")
                 response = None
             else:
@@ -79,6 +79,7 @@ class Server:
             deleted = False
             for user, client in self.__connected_clients.items():
                 if client.get_socket() is client_socket:
+                    self.redeem_user_port(user)
                     del self.__connected_clients[user]
                     deleted = True
                     self.send_broadcast_message(f"{Protocol.UPDATE}{Protocol.DISCONNECT}", user, self.fix_len(len(user)), "", "")
@@ -195,3 +196,13 @@ class Server:
                 self.allocated_ports[port] = False
                 return port
         return -1
+
+    def redeem_user_port(self, username):
+        """
+        Method redeems user's port after disconnecting from the server.
+        :param username: a given username to redeem his port for other potential clients.
+        :return: None
+        """
+        port = self.__connected_clients[username].get_PORT()
+        self.allocated_ports[port] = True
+        self.__connected_clients[username].set_PORT(-1)

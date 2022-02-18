@@ -10,6 +10,7 @@ class Client(threading.Thread):
         self.__name = name
         self.__socket = socket
         self.__listening_socket = listening_socket
+        self.__PORT = -1
 
     def get_name(self):
         """
@@ -28,3 +29,16 @@ class Client(threading.Thread):
         :return: client's secondary socket, which listen for incoming (broadcast) chat messages.
         """
         return self.__listening_socket
+
+    def get_PORT(self):
+        """
+        :return: user's listen socket port.
+        """
+        return self.__PORT
+
+    def set_PORT(self, port):
+        """
+        :param port: a given port.
+        :return: None
+        """
+        self.__PORT = port
