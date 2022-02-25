@@ -10,6 +10,7 @@ EXIT_OPTION = 0
 MIN_OPTION = 0
 MAX_OPTION = 3
 
+
 def users_list_handler(sock):
     msg = analysis.GET + analysis.USERS_LIST_CODE
     msg = msg.encode()
@@ -17,40 +18,34 @@ def users_list_handler(sock):
     sock.sendall(msg)
     ans = sock.recv(1024).decode()
     print(ans)
-    users_exist = analysis.analysis_msg_main(ans)
-    
-    if(users_exist):
-        print(f"user in the chat: {analysis.connected_users_list}")
-        return True
-    else:
-        print("You are the only user in the chat")
-        return False
-        
-def send_msg_handler(sock):
+    return analysis.analysis_msg_main(ans)
+
+
+def send_msg_handler(sock, msg_to_user, tar_username):
     # build protocol msg to sent a msg to spesific client
-    username = input("Enter user to sent him message: ")
-    username_len = str(len(username))
-    msg_to_user = input(f"Enter message for {username}: ")
+    username_len = str(len(tar_username))
     msg_to_user_len = str(len(msg_to_user))
-    msg = analysis.GET + analysis.SEND_MSG_CODE + username_len.zfill(2) + username + msg_to_user_len.zfill(2) + msg_to_user
-    msg = msg.encode()    
+    msg = analysis.GET + analysis.SEND_MSG_CODE + username_len.zfill(2) + tar_username + msg_to_user_len.zfill(
+        2) + msg_to_user
+    msg = msg.encode()
     print(msg.decode())
-    
+
     # send it to server
     sock.sendall(msg)
     ans = sock.recv(1024).decode()
     print(analysis.analysis_msg_main(ans))
 
-def send_msg_broadcast_handler(sock):
-    msg_to_everyone = input("Enter message for everyone: ")
+
+def send_msg_broadcast_handler(sock, msg_to_everyone):
     msg_to_everyone_len = str(len(msg_to_everyone))
     msg = analysis.GET + analysis.SEND_BROADCAST_MSG_CODE + msg_to_everyone_len.zfill(2) + msg_to_everyone
-    msg = msg.encode() 
+    msg = msg.encode()
     print(msg.decode())
     # send it to server
     sock.sendall(msg)
     ans = sock.recv(1024).decode()
     print(analysis.analysis_msg_main(ans))
+
 
 def disconnect_handler(sock):
     msg = analysis.GET + analysis.DISCONNECT_CODE
@@ -59,15 +54,14 @@ def disconnect_handler(sock):
     ans = sock.recv(1024).decode()
     if analysis.analysis_msg_main(ans):
         sock.close()
-    
-    
 
-def logic(option, sock):
+
+def logic(option, sock, message=None, target=None):
     if option is SEND_MSG_OPTION:
-        send_msg_handler(sock)
+        send_msg_handler(sock, message, target)
     elif option is SEND_BROADCAST_MSG_OPTION:
-        send_msg_broadcast_handler(sock)
+        send_msg_broadcast_handler(sock, message)
     elif option is USERS_LIST_OPTION:
-        users_list_handler(sock)
+        return users_list_handler(sock)
     else:
         disconnect_handler(sock)
