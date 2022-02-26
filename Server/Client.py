@@ -3,10 +3,9 @@
 import threading
 
 
-class Client(threading.Thread):
+class Client:
 
     def __init__(self, name, socket, listening_socket, server_listening_socket):
-        threading.Thread.__init__(self)
         self.__name = name
         self.__socket = socket
         self.__listening_socket = listening_socket

@@ -1,10 +1,10 @@
 import threading
 from threading import Thread
 from tkinter import *
+from tkinter import messagebox
 import analysis_unit
 import logic
 import socket
-import time
 
 
 class GUI:
@@ -84,20 +84,30 @@ class GUI:
         # Entrance buttons:
         connect_button = Button(self.connect_window,
                                 text="Connect",
-                                fg="blue",
+                                fg="white",
+                                bg="#1b11ee",
                                 font=('Helvetica', 13, 'bold'),
-                                command=lambda: self.connect_to_chat(address.get(), int(port.get()), username.get()))
+                                command=lambda: self.connect_to_chat(address.get(), port.get(), username.get()))
+
+        connect_button.bind("<Enter>", lambda e: connect_button.config(fg='white', bg='#241bef', cursor="hand2"))
+        connect_button.bind("<Leave>", lambda e: connect_button.config(fg='white', bg='#1b11ee', cursor="arrow"))
         connect_button.pack(side=LEFT)
-        connect_button.place(x=185, y=250, height=40, width=130)
+        connect_button.place(x=185,
+                             y=250,
+                             height=40,
+                             width=130)
 
         exit_button = Button(self.connect_window,
                              text="Exit",
                              background="red",
                              height=2,
                              width=8,
+                             font=('Arial', 12, 'bold'),
                              command=lambda: self.exit())
+        exit_button.bind("<Enter>", lambda e: exit_button.config(fg='white', bg='#ff2929', cursor="hand2"))
+        exit_button.bind("<Leave>", lambda e: exit_button.config(fg='black', bg='red', cursor="arrow"))
         exit_button.pack()
-        exit_button.place(x=-1, y=459)
+        exit_button.place(x=-1, y=450)
 
     def set_chat_layout(self) -> None:
         self.chat_window.geometry("750x500")
@@ -118,15 +128,21 @@ class GUI:
                          font="Helvetica 10",
                          padx=1,
                          pady=1)
-
-        text_chat.place(x=3, y=11, height=368, width=370)
+        text_chat.tag_configure('tag-center', justify='center')
+        text_chat.place(x=3,
+                        y=11,
+                        height=368,
+                        width=370)
         self.set_chat_textBox(text_chat)
 
         # Scroll bar:
         scroll_bar = Scrollbar(text_chat)
         scroll_bar.place(relheight=1.01,
-                         relx=0.970)
-        scroll_bar.config(command=text_chat.yview())
+                         relx=0.965,
+                         y=-1)
+        # attach textbox to scrollbar
+        text_chat.config(yscrollcommand=scroll_bar.set)
+        scroll_bar.config(command=text_chat.yview, cursor="hand2")
 
         # Client's message box:
         client_msg = Text(self.chat_window,
@@ -144,6 +160,7 @@ class GUI:
                                 clicked,
                                 "everyone",
                                 *self.chat_online_users)
+        users_menu.configure(cursor="hand2")
         users_menu.place(x=50,
                          y=385,
                          height=25,
@@ -155,24 +172,93 @@ class GUI:
         send_button = Button(self.chat_window,
                              text="Send",
                              background="blue",
+                             foreground="white",
+                             font=('Helvetica', 13, 'bold'),
                              height=2,
                              width=8,
+                             cursor="hand2",
                              command=lambda: self.send_button(client_msg, to=clicked.get()))
+        send_button.bind("<Enter>", lambda e: send_button.config(bg='#0d0dff', cursor="hand2"))
+        send_button.bind("<Leave>", lambda e: send_button.config(bg='blue', cursor="arrow"))
+
         send_button.place(x=300,
                           y=420,
                           height=40,
                           width=60)
 
         leave_button = Button(self.chat_window,
-                              text="Leave chat",
+                              text="Leave Chat",
                               background="red",
+                              font=('Helvetica', 8, 'bold'),
                               height=2,
                               width=8,
                               command=lambda: self.leave_chat())
+        leave_button.bind("<Enter>", lambda e: leave_button.config(fg='white', bg='#ff2929', cursor="hand2"))
+        leave_button.bind("<Leave>", lambda e: leave_button.config(fg='black', bg='red', cursor="arrow"))
         leave_button.place(x=0,
                            y=470,
                            height=30,
                            width=65)
+        # Files buttons:
+        select_file_button = Button(self.chat_window,
+                                    text="Choose File",
+                                    background="grey",
+                                    height=2,
+                                    width=8,
+                                    cursor="hand2",
+                                    command=lambda: self.select_file())
+        select_file_button.bind("<Enter>", lambda e: select_file_button.config(bg='#929292'))
+        select_file_button.bind("<Leave>", lambda e: select_file_button.config(bg='grey'))
+
+        select_file_button.place(x=420,
+                                 y=420,
+                                 height=30,
+                                 width=70)
+
+        save_file_button = Button(self.chat_window,
+                                  text="Save File",
+                                  background="grey",
+                                  height=2,
+                                  width=8,
+                                  cursor="hand2",
+                                  command=lambda: self.save_file())
+        save_file_button.bind("<Enter>", lambda e: save_file_button.config(bg='#929292'))
+        save_file_button.bind("<Leave>", lambda e: save_file_button.config(bg='grey'))
+
+        save_file_button.place(x=498,
+                               y=420,
+                               height=30,
+                               width=65)
+
+        select_protocol_button = Button(self.chat_window,
+                                        text="protocol",
+                                        background="grey",
+                                        height=2,
+                                        width=8,
+                                        cursor="hand2",
+                                        command=lambda: self.selected_protocol())
+        select_protocol_button.bind("<Enter>", lambda e: select_protocol_button.config(bg='#929292'))
+        select_protocol_button.bind("<Leave>", lambda e: select_protocol_button.config(bg='grey'))
+
+        select_protocol_button.place(x=570,
+                                     y=420,
+                                     height=30,
+                                     width=65)
+
+        proceed_button = Button(self.chat_window,
+                                text="Proceed",
+                                background="grey",
+                                height=2,
+                                width=8,
+                                cursor="hand2",
+                                command=lambda: self.proceed())
+        proceed_button.bind("<Enter>", lambda e: proceed_button.config(bg='#929292'))
+        proceed_button.bind("<Leave>", lambda e: proceed_button.config(bg='grey'))
+
+        proceed_button.place(x=640,
+                             y=420,
+                             height=30,
+                             width=65)
 
         # labels:
         curr_user = Label(self.chat_window,
@@ -185,6 +271,9 @@ class GUI:
     # -------------------------------------------------
 
     def leave_chat(self):
+        user_response = messagebox.askyesnocancel("Leave Chat", "Are you sure you want to leave the chat?")
+        if user_response is False or user_response is None:
+            return
         logic.logic(logic.EXIT_OPTION, self.send_server_sock)
         self.chat_window.destroy()
 
@@ -196,35 +285,46 @@ class GUI:
     def send_message(self, client_message: Text, to="everyone"):
         client_msg = client_message.get(1.0, 'end-1c')
         if to == "everyone":
+            self.chat_textBox.insert(END, f"Me to everyone: {client_msg}\n\n")
             choice = logic.SEND_BROADCAST_MSG_OPTION
             logic.logic(choice, self.send_server_sock, message=client_msg)
         else:
+            self.chat_textBox.insert(END, f"Me to {to}: {client_msg}\n\n")
             logic.logic(logic.SEND_MSG_OPTION, self.send_server_sock, message=client_msg, target=to)
         client_message.delete('1.0', END)
 
-    def connect_to_chat(self, SERVER_IP, SERVER_PORT, USERNAME):
+    def connect_to_chat(self, SERVER_IP: str, SERVER_PORT: str, USERNAME: str):
         """
         The method connects the current user to the chat.
         :return: None
         """
         print(f"User: {USERNAME}, Server ip: {SERVER_IP}, Server port: {SERVER_PORT}")
+
+        # see if the Entry fields are empty.
+        if not SERVER_IP or not SERVER_PORT or not USERNAME:
+            messagebox.showwarning("Empty Fields", "Please enter something in the detail fields!")
+            return
+
+        # Converting the string port to the real integer port number.
+        server_port = int(SERVER_PORT)
+
         # connect to the server
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        server_addr = (SERVER_IP, SERVER_PORT)
+        server_addr = (SERVER_IP, server_port)
         sock.connect(server_addr)
-        self.chat_window.title(f"Char Room - {USERNAME}")
+        self.chat_window.title(f"Chat Room - {USERNAME}")
         self.set_server_sock(sock)
 
         # enter to the chat as new friend inside
         port = self.log_in_to_chat(sock, USERNAME)
+        if port == -1:
+            return
 
         # listens for incoming messages from server.
         thread = Thread(target=self.listen_to_server, args=(port, SERVER_IP,))
         thread.start()
-        # time.sleep(0.5)
 
         # send a request for online users list:
-        # print(logic.logic(logic.USERS_LIST_OPTION, sock))
         self.set_online_users_list(logic.logic(logic.USERS_LIST_OPTION, sock))
         print(self.chat_online_users)
         self.update_option_menu()
@@ -234,6 +334,18 @@ class GUI:
 
     def exit(self):
         self.connect_window.destroy()
+
+    def select_file(self):
+        pass
+
+    def save_file(self):
+        pass
+
+    def selected_protocol(self):
+        pass
+
+    def proceed(self):
+        pass
 
     # ---------------------------------------------------------------
     # ***************** Auxiliary Methods For Buttons ***************
@@ -248,13 +360,24 @@ class GUI:
             sock.sendall(msg.encode())
             ans = sock.recv(1024).decode()
             ans = analysis_unit.analysis_msg_main(ans)
+            print(ans)
+            print("------------------")
             if analysis_unit.ERROR in ans:
                 code, type_code, type_error = ans
+                print(type_code)
                 if type_error == "1":
+                    messagebox.showwarning("Invalid Username", "Please enter a valid username.")
+                    return -1
                     print("Invalid username! try again.")
-                elif type_code == "2":
+
+                elif type_error == "2":
+                    messagebox.showerror("Username Taken", "Error 4002 - This username is already taken.\nPlease "
+                                                           "choose another name or try later.")
                     print("Username was taken! try again.")
+                    return -1
+
                 elif type_error == "3":
+                    messagebox.showerror("Connection Failed", "Error 4003 - Server is full.\nPlease try later.")
                     print("Server full.. try later.")
                     sock.close()
                     exit()
@@ -279,7 +402,7 @@ class GUI:
             print("------------------------")
             if analysis_unit.CONNECT_CODE in ans:
                 type_code, username = ans
-                self.chat_textBox.insert(END, f"{username} has joined the chat\n\n")
+                self.chat_textBox.insert(END, f"{username} has joined the chat\n\n", 'tag-center')
                 self.chat_online_users.append(username)
                 self.update_option_menu()
                 print(self.chat_online_users)
@@ -287,7 +410,7 @@ class GUI:
 
             elif analysis_unit.DISCONNECT_CODE in ans:
                 type_code, username = ans
-                self.chat_textBox.insert(END, f"{username} has left the chat\n\n")
+                self.chat_textBox.insert(END, f"{username} has left the chat\n\n", 'tag-center')
                 print(self.chat_online_users)
                 self.chat_online_users.remove(username)
                 self.update_option_menu()
