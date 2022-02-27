@@ -402,7 +402,10 @@ class GUI:
             print("------------------------")
             if analysis_unit.CONNECT_CODE in ans:
                 type_code, username = ans
-                self.chat_textBox.insert(END, f"{username} has joined the chat\n\n", 'tag-center')
+                self.center_label(self.chat_textBox,
+                                  text=f"{username} has joined the chat",
+                                  width=25,
+                                  font='Arial 10 bold')
                 self.chat_online_users.append(username)
                 self.update_option_menu()
                 print(self.chat_online_users)
@@ -410,7 +413,10 @@ class GUI:
 
             elif analysis_unit.DISCONNECT_CODE in ans:
                 type_code, username = ans
-                self.chat_textBox.insert(END, f"{username} has left the chat\n\n", 'tag-center')
+                self.center_label(self.chat_textBox,
+                                  text=f"{username} has left the chat",
+                                  width=25,
+                                  font='Arial 10 bold')
                 print(self.chat_online_users)
                 self.chat_online_users.remove(username)
                 self.update_option_menu()
@@ -428,6 +434,12 @@ class GUI:
             else:
                 pass
 
+    def center_label(self, textbox, **kwargs):
+        textbox.insert(END, ' ', 'tag-center')
+        lbl = Label(textbox, bd=3, relief='solid', **kwargs, bg="#1ecbe1")
+        textbox.window_create(END, window=lbl)
+        textbox.insert(END, '\n\n')
+
     def update_online_user_list(self):
         logic.logic(logic.USERS_LIST_OPTION, self.send_server_sock)
 
@@ -442,6 +454,7 @@ class GUI:
             print(user)
             menu.add_command(label=user,
                              command=lambda value=user: self.users_var.set(value))
+
 
     def set_server_sock(self, sock):
         self.send_server_sock = sock
