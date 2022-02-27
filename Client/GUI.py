@@ -404,7 +404,6 @@ class GUI:
                 type_code, username = ans
                 self.center_label(self.chat_textBox,
                                   text=f"{username} has joined the chat",
-                                  width=25,
                                   font='Arial 10 bold')
                 self.chat_online_users.append(username)
                 self.update_option_menu()
@@ -415,7 +414,6 @@ class GUI:
                 type_code, username = ans
                 self.center_label(self.chat_textBox,
                                   text=f"{username} has left the chat",
-                                  width=25,
                                   font='Arial 10 bold')
                 print(self.chat_online_users)
                 self.chat_online_users.remove(username)
