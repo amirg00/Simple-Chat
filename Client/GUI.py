@@ -16,6 +16,7 @@ class GUI:
         self.users_var = None
         self.chat_online_users = []
         self.chat_window = Tk()
+
         # hiding the chat window.
         self.chat_window.withdraw()
         self.set_chat_layout()
@@ -270,19 +271,45 @@ class GUI:
     # ***************** Buttons Section ***************
     # -------------------------------------------------
 
-    def leave_chat(self):
+    def leave_chat(self) -> None:
+        """
+        The method is called when the leave chat button is pressed.
+        Method first pops a pop-up window which asks the user to be sure that
+        he wants leaving the chat, if so the method disconnects client following
+        the protocol, and destroy the chat window. If not so, then method returns
+        None to abort the leaving.
+        :return: None
+        """
         user_response = messagebox.askyesnocancel("Leave Chat", "Are you sure you want to leave the chat?")
         if user_response is False or user_response is None:
             return
         logic.logic(logic.EXIT_OPTION, self.send_server_sock)
         self.chat_window.destroy()
 
-    def send_button(self, client_message: Text, to="everyone"):
+    def send_button(self, client_message: Text, to="everyone") -> None:
+        """
+        Method listening the send button in chat, such that when it is pressed the method runs automatically.
+        This method built to run a new thread for client messages, because we want to enable the
+        possibility to send and receive "in parallel".
+        :param client_message: the client's message in Text type.
+        :param to: target user the message is sent to.
+        :return: None
+        """
         client_send = threading.Thread(target=self.send_message, args=(client_message, to,))
         client_send.start()
         pass
 
-    def send_message(self, client_message: Text, to="everyone"):
+    def send_message(self, client_message: Text, to="everyone") -> None:
+        """
+        Method sends the client's message to the target client ('to').
+        If to is "everyone" it means we want to send a broadcast message for everyone in chat,
+        following the protocol, except the sender. If 'to' is a specific user, then we send a
+        message for the specific client following the protocol. Of course, we add to text
+        box the current user's messages.
+        :param client_message: the client's message in Text type.
+        :param to: target user the message is sent to.
+        :return: None
+        """
         client_msg = client_message.get(1.0, 'end-1c')
         if to == "everyone":
             self.chat_textBox.insert(END, f"Me to everyone: {client_msg}\n\n")
@@ -293,7 +320,7 @@ class GUI:
             logic.logic(logic.SEND_MSG_OPTION, self.send_server_sock, message=client_msg, target=to)
         client_message.delete('1.0', END)
 
-    def connect_to_chat(self, SERVER_IP: str, SERVER_PORT: str, USERNAME: str):
+    def connect_to_chat(self, SERVER_IP: str, SERVER_PORT: str, USERNAME: str) -> None:
         """
         The method connects the current user to the chat.
         :return: None
@@ -320,7 +347,7 @@ class GUI:
         if port == -1:
             return
 
-        # listens for incoming messages from server.
+        # listens for incoming messages from server with thread attached to method.
         thread = Thread(target=self.listen_to_server, args=(port, SERVER_IP,))
         thread.start()
 
@@ -332,10 +359,18 @@ class GUI:
         self.connect_window.destroy()
         self.chat_window.deiconify()
 
-    def exit(self):
+    def exit(self) -> None:
+        """
+        Method exits from connect window, after the exit button is pressed.
+        :return: None
+        """
         self.connect_window.destroy()
 
     def select_file(self):
+        """
+        Method selects a file offered by the server.
+        :return:
+        """
         pass
 
     def save_file(self):
@@ -351,7 +386,17 @@ class GUI:
     # ***************** Auxiliary Methods For Buttons ***************
     # ---------------------------------------------------------------
 
-    def log_in_to_chat(self, sock, username):
+    def log_in_to_chat(self, sock, username) -> int:
+        """
+        Method connects the username to the chat following the protocol,
+        if an error response from the server is returned (following the protocol), it pops a pop-up window,
+        to let user know with the error/warning specified in the pop-up window.
+        If there isn't an error found, we get the port allocated by the server from
+        analyzing the server's response.
+        :param sock: a reference to the username's send socket.
+        :param username: a given username.
+        :return: new port allocated by the server (could be in range -> (55000, 55015)) for the new listening socket.
+        """
         print("user: " + username)
         is_log_in = False
 
@@ -390,7 +435,15 @@ class GUI:
         print(f"Your username: {username} port for you: {port}")
         return port
 
-    def listen_to_server(self, port, SERVER_IP):
+    def listen_to_server(self, port, SERVER_IP) -> None:
+        """
+        This method is a client's thread listening to server.
+        In this method we listen to the income (30X - broadcast) messages from the server,
+        with an infinite loop, with the port allocated by server earlier (55000-55015).
+        :param port: a given port to listen for incoming messages from server.
+        :param SERVER_IP: a given server's ip.
+        :return: None
+        """
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         server_addr = (SERVER_IP, port)
         sock.connect(server_addr)
@@ -432,7 +485,15 @@ class GUI:
             else:
                 pass
 
-    def center_label(self, textbox, **kwargs):
+    def center_label(self, textbox, **kwargs) -> None:
+        """
+        Method created a decorated box for leaving and joining messages,
+        which will be centered at the center within the chat's text box, after inserting
+        the decorated label to the text box.
+        :param textbox: user's chat text box.
+        :param kwargs: more values...
+        :return: None
+        """
         textbox.insert(END, ' ', 'tag-center')
         lbl = Label(textbox, bd=3, relief='solid', **kwargs, bg="#1ecbe1")
         textbox.window_create(END, window=lbl)
@@ -442,6 +503,12 @@ class GUI:
         logic.logic(logic.USERS_LIST_OPTION, self.send_server_sock)
 
     def update_option_menu(self):
+        """
+        This method updates a certain option menu, in our case,
+        it updates the online users list (list of all users connected except current user),
+        after somebody leaves/joins the chat.
+        :return:
+        """
         if not self.chat_online_users:
             return
         menu = self.users_menu["menu"]
@@ -453,23 +520,37 @@ class GUI:
             menu.add_command(label=user,
                              command=lambda value=user: self.users_var.set(value))
 
-
-    def set_server_sock(self, sock):
+    def set_server_sock(self, sock) -> None:
+        """
+        The method sets the socket property of the class, to be the given socket.
+        :param sock: a given socket.
+        :return: None
+        """
         self.send_server_sock = sock
 
     def display_message(self):
         pass
 
-    def set_chat_textBox(self, text: Text):
+    def set_chat_textBox(self, text: Text) -> None:
+        """
+        Method sets the chat's text-box property to be the given textbox.
+        :param text: a given text-box.
+        :return: None
+        """
         self.chat_textBox = text
 
-    def set_users_menu(self, users_menu):
+    def set_users_menu(self, users_menu) -> None:
+        """
+        Method sets users menu property by a given user menu.
+        :param users_menu: a given users menu.
+        :return: None
+        """
         self.users_menu = users_menu
 
-    def set_users_var(self, users_var):
+    def set_users_var(self, users_var) -> None:
         self.users_var = users_var
 
-    def set_online_users_list(self, users_list: list):
+    def set_online_users_list(self, users_list: list) -> None:
         self.chat_online_users = users_list
 
 
