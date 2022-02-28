@@ -1,10 +1,11 @@
 import unittest
+import sys
 
 
 class MyTestCase(unittest.TestCase):
 
     def setUp(self) -> None:
-        #self.s = Server()
+        pass
 
         self.assertEqual(True, True)
 
