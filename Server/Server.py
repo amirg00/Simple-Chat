@@ -1,10 +1,3 @@
-#
-# Properties: ip,listening port,
-#             listening socket,
-#             connected clients dict (key = client's name : value = client's ref).
-#
-#
-
 import socket
 from threading import Thread
 from Client import Client
@@ -12,18 +5,45 @@ from Protocol import Protocol
 
 
 class Server:
+    DESCRIPTION = """ This is the chat's server,
+                      which responsible for responses for clients following the protocol.
+                  """
 
     def __init__(self, ip, listening_port):
+        """
+            The constructor of the chat's server.
+
+            Parameters
+            ----------
+            ip : str
+                server's ip address.
+            listening_port: int
+                the port that the server listens to.
+
+            Returns
+            -------
+            None
+        """
         self.__ip = ip
         self.__listening_port = listening_port
+        # server's listening socket.
         self.__listening_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        # dictionary of all connected clients (key = username, value = Client)
         self.__connected_clients = {}
+        # a class constant: maximum amount of allowed clients.
         self.__users_max_amount = 5
+        # dictionary of allocated ports when: (key = port, value = True if port isn't taken, o.w. False)
         self.allocated_ports = {}
         for port in range(55000, 55016):
             self.allocated_ports[port] = True
 
-    def start_listen(self):
+    def start_listen(self) -> None:
+        """
+        Method which makes the server listening for incoming connections.
+        Whenever there is a connection, the server make a thread for the method
+        that offer a service for the client that has connected to the server.
+        :return:
+        """
         self.__listening_socket.bind(('', self.__listening_port))
         self.__listening_socket.listen(self.__users_max_amount)
         while True:
@@ -31,7 +51,16 @@ class Server:
             thread = Thread(target=self.clients_service, args=(client_socket,))
             thread.start()
 
-    def clients_service(self, client_socket):
+    def clients_service(self, client_socket) -> None:
+        """
+        Method services the specific client through the client socket.
+        It analyzes client's messages following the protocol, then sends
+        back a corresponding response followed by the protocol.
+        If users wants to disconnect, the client's socket is close, and loop
+        breaks since there isn't a use of it anymore.
+        :param client_socket: client's socket.
+        :return: None
+        """
         while True:
             message = client_socket.recv(1024).decode()
             print(message)
@@ -49,7 +78,19 @@ class Server:
                 client_socket.close()
                 break
 
-    def analyse_data_by_protocol(self, message, client_socket):
+    def analyse_data_by_protocol(self, message, client_socket) -> str:
+        """
+        Method analyses the client's message by the protocol.
+        :param message: client's message.
+        :param client_socket: client's socket.
+        :return: the corresponding response string that the server will send back to the client.
+
+        Notes
+        ---------
+        For more detailed information about our protocol, see in our repository,
+        the pdf which elaborates about protocol's rules.
+        """
+
         response = ""
         code = message[:3]
         print(message)
@@ -70,7 +111,8 @@ class Server:
                 curr_client = Client(USERNAME, client_socket, client_socket_300, listening_sock)
                 curr_client.set_PORT(alloc_PORT)
                 self.__connected_clients[USERNAME] = curr_client
-                self.send_broadcast_message(f"{Protocol.UPDATE}{Protocol.CONNECT}", USERNAME, username_len.zfill(2), "", "")
+                self.send_broadcast_message(f"{Protocol.UPDATE}{Protocol.CONNECT}", USERNAME, username_len.zfill(2), "",
+                                            "")
                 response = None
             else:
                 response = f"{Protocol.ERROR}{Protocol.CONNECT}{status}"
@@ -86,7 +128,8 @@ class Server:
                     client.get_listening_socket().close()
                     del self.__connected_clients[user]
                     deleted = True
-                    self.send_broadcast_message(f"{Protocol.UPDATE}{Protocol.DISCONNECT}", user, self.fix_len(len(user)), "", "")
+                    self.send_broadcast_message(f"{Protocol.UPDATE}{Protocol.DISCONNECT}", user,
+                                                self.fix_len(len(user)), "", "")
                     break
             return f"{Protocol.CONFIRM}{Protocol.DISCONNECT}" if deleted else 1
 
@@ -147,7 +190,7 @@ class Server:
             file_size = int(message[3:5])
             FILENAME = message[5:]
 
-    def check_valid_username(self, username: str):
+    def check_valid_username(self, username: str) -> (bool, int):
         """
         The method checks whether the username is not already existed,
         and that his length doesn't descend 2.
@@ -165,7 +208,16 @@ class Server:
 
         return True, 0
 
-    def send_broadcast_message(self, code, username, user_len, message, msg_len):
+    def send_broadcast_message(self, code, username, user_len, message, msg_len) -> None:
+        """
+        Method sends through socket the broadcast message according the type (given code).
+        :param code: a given broadcast code (could be 300, 301,...)
+        :param username: a given client's username.
+        :param user_len: the username length.
+        :param message: the broadcast message.
+        :param msg_len: the broadcast message length.
+        :return: None
+        """
         if code == f"{Protocol.UPDATE}{Protocol.CONNECT}" or code == f"{Protocol.UPDATE}{Protocol.DISCONNECT}":
             for user, client in self.__connected_clients.items():
                 if user == username:
@@ -179,14 +231,24 @@ class Server:
                 client.get_listening_socket().send(f"{code}{user_len}{username}{msg_len}{message}".encode())
 
     def fix_len(self, XX: int):
+        """
+        Method fixes length to be with two digit whenever there is one.
+        E.G.: for XX=3 -> return "03".
+        :param XX: a given number.
+        :return: string of the fixed int.
+        """
         return f"0{XX}" if XX < 10 else f"{XX}"
 
-    def get_name_by_socket(self, sock):
+    def get_name_by_socket(self, sock) -> str:
+        """
+        :param sock: a given socket.
+        :return: the username which the given socket belongs to.
+        """
         for username, value in self.__connected_clients.items():
             if value.get_socket() is sock:
                 return username
 
-    def get_available_port(self):
+    def get_available_port(self) -> int:
         """
         The method looks for a new available port, to allocate for the client's secondary socket.
         If there is an available port, then the function returns it, and right afterwards alters
@@ -201,7 +263,7 @@ class Server:
                 return port
         return -1
 
-    def redeem_user_port(self, username):
+    def redeem_user_port(self, username) -> None:
         """
         Method redeems user's port after disconnecting from the server.
         :param username: a given username to redeem his port for other potential clients.

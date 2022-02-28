@@ -6,10 +6,29 @@ import threading
 class Client:
 
     def __init__(self, name, socket, listening_socket, server_listening_socket):
+        """
+            The constructor resembles a client which stores the 3 sockets and an allocated port.
+
+            Parameters
+            ----------
+            name : str
+                client's username
+            socket : socket
+                client's main socket
+            listening_socket: socket
+                client's secondary socket, which listen for incoming (broadcast) chat messages
+            server_listening_socket: socket
+                reference for server's listening socket
+
+            Returns
+            -------
+            None
+        """
         self.__name = name
         self.__socket = socket
         self.__listening_socket = listening_socket
         self.__server_listening_socket = server_listening_socket
+        # a port which server allocated.
         self.__PORT = -1
 
     def get_name(self):
