@@ -313,10 +313,12 @@ class GUI:
         client_msg = client_message.get(1.0, 'end-1c')
         if to == "everyone":
             self.chat_textBox.insert(END, f"Me to everyone: {client_msg}\n\n")
+            self.chat_textBox.see(END)
             choice = logic.SEND_BROADCAST_MSG_OPTION
             logic.logic(choice, self.send_server_sock, message=client_msg)
         else:
             self.chat_textBox.insert(END, f"Me to {to}: {client_msg}\n\n")
+            self.chat_textBox.see(END)
             logic.logic(logic.SEND_MSG_OPTION, self.send_server_sock, message=client_msg, target=to)
         client_message.delete('1.0', END)
 
@@ -476,11 +478,13 @@ class GUI:
             elif analysis_unit.SEND_MSG_CODE in res:
                 type_code, username, msg = res
                 self.chat_textBox.insert(END, f"{username} to you: {msg}\n\n")
+                self.chat_textBox.see(END)
                 print(f"{username} to you: {msg}")
 
             elif analysis_unit.SEND_BROADCAST_MSG_CODE in res:
                 type_code, username, msg = res
                 self.chat_textBox.insert(END, f"{username} to everyone: {msg}\n\n")
+                self.chat_textBox.see(END)
                 print(f"{username} to everyone: {msg}")
             else:
                 pass
@@ -498,6 +502,7 @@ class GUI:
         lbl = Label(textbox, bd=3, relief='solid', **kwargs, bg="#1ecbe1")
         textbox.window_create(END, window=lbl)
         textbox.insert(END, '\n\n')
+        textbox.see(END)
 
     def update_online_user_list(self):
         logic.logic(logic.USERS_LIST_OPTION, self.send_server_sock)
