@@ -403,12 +403,12 @@ class GUI:
         while is_log_in is not True:
             msg = "100" + str(len(username)).zfill(2) + username
             sock.sendall(msg.encode())
-            ans = sock.recv(1024).decode()
-            ans = analysis_unit.analysis_msg_main(ans)
-            print(ans)
+            res = sock.recv(1024).decode()
+            res = analysis_unit.analysis_msg_main(res)
+            print(res)
             print("------------------")
-            if analysis_unit.ERROR in ans:
-                code, type_code, type_error = ans
+            if analysis_unit.ERROR in res:
+                code, type_code, type_error = res
                 print(type_code)
                 if type_error == "1":
                     messagebox.showwarning("Invalid Username", "Please enter a valid username.")
@@ -431,7 +431,7 @@ class GUI:
             else:
                 is_log_in = True
 
-        username, port = ans
+        username, port = res
         print(f"Your username: {username} port for you: {port}")
         return port
 
@@ -450,11 +450,11 @@ class GUI:
 
         while True:
             msg = sock.recv(1024).decode()
-            ans = analysis_unit.analysis_msg_main(msg)
-            print(ans)
+            res = analysis_unit.analysis_msg_main(msg)
+            print(res)
             print("------------------------")
-            if analysis_unit.CONNECT_CODE in ans:
-                type_code, username = ans
+            if analysis_unit.CONNECT_CODE in res:
+                type_code, username = res
                 self.center_label(self.chat_textBox,
                                   text=f"{username} has joined the chat",
                                   font='Arial 10 bold')
@@ -463,8 +463,8 @@ class GUI:
                 print(self.chat_online_users)
                 print(f"{username} added to chat")
 
-            elif analysis_unit.DISCONNECT_CODE in ans:
-                type_code, username = ans
+            elif analysis_unit.DISCONNECT_CODE in res:
+                type_code, username = res
                 self.center_label(self.chat_textBox,
                                   text=f"{username} has left the chat",
                                   font='Arial 10 bold')
@@ -473,13 +473,13 @@ class GUI:
                 self.update_option_menu()
                 print(f"{username} has left the chat")
 
-            elif analysis_unit.SEND_MSG_CODE in ans:
-                type_code, username, msg = ans
+            elif analysis_unit.SEND_MSG_CODE in res:
+                type_code, username, msg = res
                 self.chat_textBox.insert(END, f"{username} to you: {msg}\n\n")
                 print(f"{username} to you: {msg}")
 
-            elif analysis_unit.SEND_BROADCAST_MSG_CODE in ans:
-                type_code, username, msg = ans
+            elif analysis_unit.SEND_BROADCAST_MSG_CODE in res:
+                type_code, username, msg = res
                 self.chat_textBox.insert(END, f"{username} to everyone: {msg}\n\n")
                 print(f"{username} to everyone: {msg}")
             else:
