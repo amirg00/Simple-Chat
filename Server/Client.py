@@ -16,7 +16,7 @@ class Client:
             socket : socket
                 client's main socket
             listening_socket: socket
-                client's secondary socket, which listen for incoming (broadcast) chat messages
+                client's secondary socket, which listen for incoming (broadcast - socket 300) chat messages
             server_listening_socket: socket
                 reference for server's listening socket
 

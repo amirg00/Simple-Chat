@@ -78,6 +78,8 @@ class Server:
                 continue
             print(response)
             client_socket.send(response.encode())
+
+            # If client decides to disconnect:
             if response[:3] == f"{Protocol.GET}{Protocol.DISCONNECT}":
                 client_socket.close()
                 break
@@ -189,6 +191,7 @@ class Server:
 
         elif code == f"{Protocol.GET}{Protocol.FILES_LIST}":
             print("request for the files list of the server...")
+            self.update_server_files()
             Z = 0 if len(self.__files) == 0 else 1
             if Z == 0:
                 return f"{Protocol.CONFIRM}{Protocol.FILES_LIST}{Z}"
@@ -205,10 +208,7 @@ class Server:
             FILENAME = message[8:]
             allocated_port = self.get_available_port()
             response = f"{Protocol.CONFIRM}{Protocol.DOWNLOAD_FILE}{FILE_SIZE}{allocated_port}"
-            for username, client in self.__connected_clients.items():
-                if client.get_socket() is client_socket:
-                    client.get_listening_socket().send(response.encode())
-                    break
+            client_socket.send(response.encode())
 
             if PROTOCOL == "UDP":
                 rdt = RDT(allocated_port, FILENAME)
