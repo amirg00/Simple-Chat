@@ -135,6 +135,8 @@ class GUI:
                          pady=1,
                          state=DISABLED)
         text_chat.tag_configure('tag-center', justify='center')
+        text_chat.tag_configure("bold", font="Helvetica 10 bold")
+
         text_chat.place(x=3,
                         y=11,
                         height=368,
@@ -353,14 +355,16 @@ class GUI:
         client_msg = client_message.get(1.0, 'end-1c')
         if to == "everyone":
             self.chat_textBox.configure(state=NORMAL)
-            self.chat_textBox.insert(END, f"Me to everyone: {client_msg}\n\n")
+            self.chat_textBox.insert(END, f"Me to everyone:", "bold")
+            self.chat_textBox.insert(END, f" {client_msg}\n\n")
             self.chat_textBox.configure(state=DISABLED)
             self.chat_textBox.see(END)
             choice = logic.SEND_BROADCAST_MSG_OPTION
             logic.logic(choice, self.send_server_sock, message=client_msg)
         else:
             self.chat_textBox.configure(state=NORMAL)
-            self.chat_textBox.insert(END, f"Me to {to}: {client_msg}\n\n")
+            self.chat_textBox.insert(END, f"Me to {to}:", "bold")
+            self.chat_textBox.insert(END, f" {client_msg}\n\n")
             self.chat_textBox.configure(state=DISABLED)
             self.chat_textBox.see(END)
             logic.logic(logic.SEND_MSG_OPTION, self.send_server_sock, message=client_msg, target=to)
@@ -522,7 +526,8 @@ class GUI:
             elif analysis_unit.SEND_MSG_CODE in res:
                 type_code, username, msg = res
                 self.chat_textBox.configure(state=NORMAL)
-                self.chat_textBox.insert(END, f"{username} to you: {msg}\n\n")
+                self.chat_textBox.insert(END, f"{username} to you:", "bold")
+                self.chat_textBox.insert(END, f" {msg}\n\n")
                 self.chat_textBox.configure(state=DISABLED)
                 self.chat_textBox.see(END)
                 print(f"{username} to you: {msg}")
@@ -530,7 +535,8 @@ class GUI:
             elif analysis_unit.SEND_BROADCAST_MSG_CODE in res:
                 type_code, username, msg = res
                 self.chat_textBox.configure(state=NORMAL)
-                self.chat_textBox.insert(END, f"{username} to everyone: {msg}\n\n")
+                self.chat_textBox.insert(END, f"{username} to everyone:", "bold")
+                self.chat_textBox.insert(END, f" {msg}\n\n")
                 self.chat_textBox.configure(state=DISABLED)
                 self.chat_textBox.see(END)
                 print(f"{username} to everyone: {msg}")
