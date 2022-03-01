@@ -4,7 +4,7 @@ from threading import Thread
 from Client import Client
 from Protocol import Protocol
 from RDT import RDT
-
+import os
 
 class Server:
     DESCRIPTION = """ This is the chat's server,
@@ -305,4 +305,6 @@ class Server:
         Method updates the files name list, according to the current server files.
         :return: None
         """
-        pass
+        self.__files.clear()
+        for file_name in os.listdir("./Files"):
+            self.__files.append(file_name)
