@@ -1,7 +1,9 @@
 import socket
+import threading
 from threading import Thread
 from Client import Client
 from Protocol import Protocol
+from RDT import RDT
 
 
 class Server:
@@ -32,9 +34,11 @@ class Server:
         self.__connected_clients = {}
         # a class constant: maximum amount of allowed clients.
         self.__users_max_amount = 5
+        # Files name list.
+        self.__files = []
         # dictionary of allocated ports when: (key = port, value = True if port isn't taken, o.w. False)
         self.allocated_ports = {}
-        for port in range(55000, 55016):
+        for port in range(55000, 55031):
             self.allocated_ports[port] = True
 
     def start_listen(self) -> None:
@@ -185,10 +189,33 @@ class Server:
 
         elif code == f"{Protocol.GET}{Protocol.FILES_LIST}":
             print("request for the files list of the server...")
+            Z = 0 if len(self.__files) == 0 else 1
+            if Z == 0:
+                return f"{Protocol.CONFIRM}{Protocol.FILES_LIST}{Z}"
+            YY = self.fix_len(len(self.__files))
+            response = f"{Protocol.CONFIRM}{Protocol.USERS_LIST}{Z}{YY}"
+            for file_name in self.__files:
+                XX = self.fix_len(len(file_name))
+                response += f"{XX}{file_name}"
+            return response
 
         elif code == f"{Protocol.GET}{Protocol.DOWNLOAD_FILE}":
-            file_size = int(message[3:5])
-            FILENAME = message[5:]
+            PROTOCOL = message[3:6]
+            FILE_SIZE = message[6:8]
+            FILENAME = message[8:]
+            allocated_port = self.get_available_port()
+            response = f"{Protocol.CONFIRM}{Protocol.DOWNLOAD_FILE}{FILE_SIZE}{allocated_port}"
+            for username, client in self.__connected_clients.items():
+                if client.get_socket() is client_socket:
+                    client.get_listening_socket().send(response.encode())
+                    break
+
+            if PROTOCOL == "UDP":
+                rdt = RDT(allocated_port, FILENAME)
+                sender_thread = Thread(target=rdt.main(), args=())
+                sender_thread.start()
+            else:
+                pass  # here we will handle the TCP...
 
     def check_valid_username(self, username: str) -> (bool, int):
         """
@@ -272,3 +299,10 @@ class Server:
         port = self.__connected_clients[username].get_PORT()
         self.allocated_ports[port] = True
         self.__connected_clients[username].set_PORT(-1)
+
+    def update_server_files(self) -> None:
+        """
+        Method updates the files name list, according to the current server files.
+        :return: None
+        """
+        pass
