@@ -196,7 +196,7 @@ class Server:
             if Z == 0:
                 return f"{Protocol.CONFIRM}{Protocol.FILES_LIST}{Z}"
             YY = self.fix_len(len(self.__files))
-            response = f"{Protocol.CONFIRM}{Protocol.USERS_LIST}{Z}{YY}"
+            response = f"{Protocol.CONFIRM}{Protocol.FILES_LIST}{Z}{YY}"
             for file_name in self.__files:
                 XX = self.fix_len(len(file_name))
                 response += f"{XX}{file_name}"

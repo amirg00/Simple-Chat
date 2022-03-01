@@ -12,8 +12,9 @@ USERS_LIST_CODE = "02"  #
 SEND_MSG_CODE = "03"  #
 SEND_BROADCAST_MSG_CODE = "04"  #
 FILES_LIST_CODE = "05"
-# ----------------------------------#
 
+
+# ----------------------------------#
 
 
 def analysis_confirms_msg(type_code, msg):
@@ -64,7 +65,6 @@ def analysis_confirms_msg(type_code, msg):
                 # print(username) --TRY WITHOUT PRINTING
         return connected_users_list
 
-
     # for msg start with 203
     if type_code == SEND_MSG_CODE:
         # print("Your message was sent!") --TRY WITHOUT PRINTING
@@ -88,19 +88,19 @@ def analysis_confirms_msg(type_code, msg):
                 users_got_msg.append(username)
 
         return users_got_msg
-    
+
     # for msg start with 205
     if type_code == FILES_LIST_CODE:
         files_list = []
-        
+
         # check if there files in server chat
         files_exist = int(msg[:1])
         msg = msg[1:]
-        
+
         # if files exist, save them in list
         if files_exist:
-            files_amount = int(msg[:1])
-            msg = msg[1:]
+            files_amount = int(msg[:2])
+            msg = msg[2:]
             for i in range(files_amount):
                 filename_len = int(msg[:2])
                 msg = msg[2:]
@@ -108,8 +108,6 @@ def analysis_confirms_msg(type_code, msg):
                 msg = msg[filename_len:]
                 files_list.append(filename)  # add file to list
         return files_list
-        
-        
 
 
 def analysis_updates_msg(type_code, msg):

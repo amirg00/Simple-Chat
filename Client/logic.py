@@ -11,6 +11,7 @@ EXIT_OPTION = 0
 MIN_OPTION = 0
 MAX_OPTION = 3
 
+
 def files_list_handler(sock):
     msg = analysis.GET + analysis.FILES_LIST_CODE
     msg = msg.encode()
