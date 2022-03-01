@@ -2,6 +2,8 @@ import threading
 from threading import Thread
 from tkinter import *
 from tkinter import messagebox
+from tkinter.ttk import Combobox
+
 import analysis_unit
 import logic
 import socket
@@ -12,9 +14,11 @@ class GUI:
     def __init__(self):
         self.send_server_sock = None
         self.chat_textBox = None
+        self.files_textBox = None
         self.users_menu = None
         self.users_var = None
         self.chat_online_users = []
+        self.server_files = []
         self.chat_window = Tk()
 
         # hiding the chat window.
@@ -128,7 +132,8 @@ class GUI:
                          # fg="#EAECEE",
                          font="Helvetica 10",
                          padx=1,
-                         pady=1)
+                         pady=1,
+                         state=DISABLED)
         text_chat.tag_configure('tag-center', justify='center')
         text_chat.place(x=3,
                         y=11,
@@ -201,6 +206,18 @@ class GUI:
                            height=30,
                            width=65)
         # Files buttons:
+        # files combo-box:
+        var = StringVar(value='Choose a file')
+        server_files = Combobox(self.chat_window,
+                                state='readonly',
+                                textvariable=var,
+                                values=self.server_files,
+                                postcommand=lambda: self.update_server_files(server_files))
+        server_files.place(x=410,
+                           y=10,
+                           height=20,
+                           width=300)
+
         select_file_button = Button(self.chat_window,
                                     text="Choose File",
                                     background="grey",
@@ -260,6 +277,29 @@ class GUI:
                              y=420,
                              height=30,
                              width=65)
+        # files text box:
+        files_textBox = Text(self.chat_window,
+                             # bg="#17202A",
+                             # fg="#EAECEE",
+                             font="Helvetica 10",
+                             padx=1,
+                             pady=1,
+                             state=DISABLED)
+        files_textBox.tag_configure('tag-center', justify='center')
+        files_textBox.place(x=410,
+                            y=40,
+                            height=330,
+                            width=330)
+        self.set_files_textBox(files_textBox)
+
+        # Scroll bar:
+        scroll_bar = Scrollbar(files_textBox)
+        scroll_bar.place(relheight=1.01,
+                         relx=0.965,
+                         y=-1)
+        # attach textbox to scrollbar
+        files_textBox.config(yscrollcommand=scroll_bar.set)
+        scroll_bar.config(command=files_textBox.yview, cursor="hand2")
 
         # labels:
         curr_user = Label(self.chat_window,
@@ -312,12 +352,16 @@ class GUI:
         """
         client_msg = client_message.get(1.0, 'end-1c')
         if to == "everyone":
+            self.chat_textBox.configure(state=NORMAL)
             self.chat_textBox.insert(END, f"Me to everyone: {client_msg}\n\n")
+            self.chat_textBox.configure(state=DISABLED)
             self.chat_textBox.see(END)
             choice = logic.SEND_BROADCAST_MSG_OPTION
             logic.logic(choice, self.send_server_sock, message=client_msg)
         else:
+            self.chat_textBox.configure(state=NORMAL)
             self.chat_textBox.insert(END, f"Me to {to}: {client_msg}\n\n")
+            self.chat_textBox.configure(state=DISABLED)
             self.chat_textBox.see(END)
             logic.logic(logic.SEND_MSG_OPTION, self.send_server_sock, message=client_msg, target=to)
         client_message.delete('1.0', END)
@@ -477,13 +521,17 @@ class GUI:
 
             elif analysis_unit.SEND_MSG_CODE in res:
                 type_code, username, msg = res
+                self.chat_textBox.configure(state=NORMAL)
                 self.chat_textBox.insert(END, f"{username} to you: {msg}\n\n")
+                self.chat_textBox.configure(state=DISABLED)
                 self.chat_textBox.see(END)
                 print(f"{username} to you: {msg}")
 
             elif analysis_unit.SEND_BROADCAST_MSG_CODE in res:
                 type_code, username, msg = res
+                self.chat_textBox.configure(state=NORMAL)
                 self.chat_textBox.insert(END, f"{username} to everyone: {msg}\n\n")
+                self.chat_textBox.configure(state=DISABLED)
                 self.chat_textBox.see(END)
                 print(f"{username} to everyone: {msg}")
             else:
@@ -498,10 +546,14 @@ class GUI:
         :param kwargs: more values...
         :return: None
         """
+        textbox.configure(state=NORMAL)
         textbox.insert(END, ' ', 'tag-center')
+        textbox.configure(state=DISABLED)
         lbl = Label(textbox, bd=3, relief='solid', **kwargs, bg="#1ecbe1")
         textbox.window_create(END, window=lbl)
+        textbox.configure(state=NORMAL)
         textbox.insert(END, '\n\n')
+        textbox.configure(state=DISABLED)
         textbox.see(END)
 
     def update_online_user_list(self):
@@ -524,6 +576,12 @@ class GUI:
             print(user)
             menu.add_command(label=user,
                              command=lambda value=user: self.users_var.set(value))
+
+    def update_server_files(self, files_combobox: Combobox):
+        files = logic.logic(logic.FILES_LIST_OPTION, self.send_server_sock)
+        print(files)
+        self.set_server_files(files)
+        files_combobox.config(values=self.server_files)
 
     def set_server_sock(self, sock) -> None:
         """
@@ -557,6 +615,12 @@ class GUI:
 
     def set_online_users_list(self, users_list: list) -> None:
         self.chat_online_users = users_list
+
+    def set_server_files(self, server_files):
+        self.server_files = server_files
+
+    def set_files_textBox(self, textBox: Text):
+        self.files_textBox = textBox
 
 
 if __name__ == "__main__":
