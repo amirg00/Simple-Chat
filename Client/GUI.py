@@ -18,6 +18,7 @@ class GUI:
         self.files_textBox = None
         self.users_menu = None
         self.users_var = None
+        self.USERNAME = ""
         self.server_ip = None
         self.chat_online_users = []
         self.server_files = []
@@ -287,7 +288,8 @@ class GUI:
                              font="Helvetica 10",
                              padx=1,
                              pady=1,
-                             state=DISABLED)
+                             # state=DISABLED
+                             )
         files_textBox.tag_configure('tag-center', justify='center')
         files_textBox.place(x=410,
                             y=40,
@@ -386,6 +388,9 @@ class GUI:
         # set server ip property
         self.set_server_ip(SERVER_IP)
 
+        # set client's username property
+        self.set_username(USERNAME)
+
         # Converting the string port to the real integer port number.
         server_port = int(SERVER_PORT)
 
@@ -412,6 +417,9 @@ class GUI:
 
         self.connect_window.destroy()
         self.chat_window.deiconify()
+        self.center_label(self.chat_textBox,
+                          text=f"you have joined the chat",
+                          font='Arial 10 bold')
 
     def exit(self) -> None:
         """
@@ -440,7 +448,7 @@ class GUI:
             messagebox.showerror("File Not Found", "You haven't chosen a file.\nPlease choose a file.")
             return
         port, FILE_SIZE = logic.logic(option=logic.DOWNLOAD_OVER_UDP, sock=self.send_server_sock, filename=FILENAME)
-        rdt = RDT_Receiver(port, self.server_ip, FILENAME)
+        rdt = RDT_Receiver(port, self.server_ip, FILENAME, self.USERNAME, self.files_textBox)
         download_thread_over_udp = Thread(target=rdt.main(), args=())
         download_thread_over_udp.start()
 
@@ -513,8 +521,8 @@ class GUI:
         while True:
             msg = sock.recv(1024).decode()
             res = analysis_unit.analysis_msg_main(msg)
-            print(res)
-            print("------------------------")
+            # print(res)
+            # print("------------------------")
             if analysis_unit.CONNECT_CODE in res:
                 type_code, username = res
                 self.center_label(self.chat_textBox,
@@ -522,18 +530,18 @@ class GUI:
                                   font='Arial 10 bold')
                 self.chat_online_users.append(username)
                 self.update_option_menu()
-                print(self.chat_online_users)
-                print(f"{username} added to chat")
+                # print(self.chat_online_users)
+                # print(f"{username} added to chat")
 
             elif analysis_unit.DISCONNECT_CODE in res:
                 type_code, username = res
                 self.center_label(self.chat_textBox,
                                   text=f"{username} has left the chat",
                                   font='Arial 10 bold')
-                print(self.chat_online_users)
+                # print(self.chat_online_users)
                 self.chat_online_users.remove(username)
                 self.update_option_menu()
-                print(f"{username} has left the chat")
+                # print(f"{username} has left the chat")
 
             elif analysis_unit.SEND_MSG_CODE in res:
                 type_code, username, msg = res
@@ -542,7 +550,7 @@ class GUI:
                 self.chat_textBox.insert(END, f" {msg}\n\n")
                 self.chat_textBox.configure(state=DISABLED)
                 self.chat_textBox.see(END)
-                print(f"{username} to you: {msg}")
+                # print(f"{username} to you: {msg}")
 
             elif analysis_unit.SEND_BROADCAST_MSG_CODE in res:
                 type_code, username, msg = res
@@ -551,9 +559,7 @@ class GUI:
                 self.chat_textBox.insert(END, f" {msg}\n\n")
                 self.chat_textBox.configure(state=DISABLED)
                 self.chat_textBox.see(END)
-                print(f"{username} to everyone: {msg}")
-            else:
-                pass
+                # print(f"{username} to everyone: {msg}")
 
     def center_label(self, textbox, **kwargs) -> None:
         """
@@ -642,6 +648,9 @@ class GUI:
 
     def set_files_textBox(self, textBox: Text):
         self.files_textBox = textBox
+
+    def set_username(self, username):
+        self.USERNAME = username
 
 
 if __name__ == "__main__":

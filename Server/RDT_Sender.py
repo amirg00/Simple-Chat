@@ -96,7 +96,7 @@ class RDT_Sender:
             self.send_packet()
 
             # stop fill the window if window is full
-            self.can_window_slide = False if len(self.window) == self.WINDOW_SIZE else True
+            self.can_window_slide = False if len(self.window) == self.WINDOW_SIZE or not self.BUFFER else True
 
         elif case == Option.ACK_ARRIVED:
             if self.ack == self.next_seq:
