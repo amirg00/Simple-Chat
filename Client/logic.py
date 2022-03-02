@@ -12,14 +12,16 @@ EXIT_OPTION = 0
 MIN_OPTION = 0
 MAX_OPTION = 3
 
+
 def download_over_udp_handler(sock, filename):
     msg = analysis.GET + analysis.DOWNLOAD_FILE
-    mag += "UDP"
+    msg += "UDP"
     msg += str(len(filename)).zfill(2) + filename
     msg = msg.encode()
     sock.sendall(msg)
     ans = sock.recv(1024).decode()
     return analysis.analysis_msg_main(ans)
+
 
 def files_list_handler(sock):
     msg = analysis.GET + analysis.FILES_LIST_CODE

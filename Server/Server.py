@@ -3,7 +3,7 @@ import threading
 from threading import Thread
 from Client import Client
 from Protocol import Protocol
-from RDT import RDT
+from RDT_Sender import RDT_Sender
 import os
 
 class Server:
@@ -207,13 +207,13 @@ class Server:
             FILENAME_len = message[6:8]
             FILENAME = message[8:]
             FILE_SIZE = os.path.getsize(f"./Files/{FILENAME}")
-            FILE_SIZE_len = str(FILE_SIZE).zfill(2)
+            FILE_SIZE_len = self.fix_len(len(str(FILE_SIZE)))
             allocated_port = self.get_available_port()
             response = f"{Protocol.CONFIRM}{Protocol.DOWNLOAD_FILE}{FILE_SIZE_len}{FILE_SIZE}{allocated_port}"
             client_socket.send(response.encode())
 
             if PROTOCOL == "UDP":
-                rdt = RDT(allocated_port, FILENAME)
+                rdt = RDT_Sender(allocated_port, f"./Files/{FILENAME}")
                 sender_thread = Thread(target=rdt.main(), args=())
                 sender_thread.start()
             else:

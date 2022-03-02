@@ -113,11 +113,11 @@ def analysis_confirms_msg(type_code, msg):
     # for msg start with 206
     if type_code == DOWNLOAD_FILE:
         # get file size in bytes
+        print(msg)
         file_size_field_len = int(msg[:2])
         msg = msg[2:]
         file_size = msg[:file_size_field_len]
         msg = msg[file_size_field_len:]
-        
         # get port
         port = int(msg)
         

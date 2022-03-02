@@ -6,6 +6,7 @@ from tkinter.ttk import Combobox
 
 import analysis_unit
 import logic
+from RDT_Receiver import RDT_Receiver
 import socket
 
 
@@ -17,6 +18,7 @@ class GUI:
         self.files_textBox = None
         self.users_menu = None
         self.users_var = None
+        self.server_ip = None
         self.chat_online_users = []
         self.server_files = []
         self.chat_window = Tk()
@@ -270,7 +272,7 @@ class GUI:
                                  height=2,
                                  width=8,
                                  cursor="hand2",
-                                 command=lambda: self.download_file())
+                                 command=lambda: self.download_file(server_files))
         download_button.bind("<Enter>", lambda e: download_button.config(bg='#929292'))
         download_button.bind("<Leave>", lambda e: download_button.config(bg='grey'))
 
@@ -381,6 +383,9 @@ class GUI:
             messagebox.showwarning("Empty Fields", "Please enter something in the detail fields!")
             return
 
+        # set server ip property
+        self.set_server_ip(SERVER_IP)
+
         # Converting the string port to the real integer port number.
         server_port = int(SERVER_PORT)
 
@@ -428,8 +433,16 @@ class GUI:
     def selected_protocol(self):
         pass
 
-    def download_file(self):
-        pass
+    def download_file(self, server_files_combobox: Combobox):
+        FILENAME = server_files_combobox.get()
+        print(FILENAME)
+        if FILENAME == "Choose a File":
+            messagebox.showerror("File Not Found", "You haven't chosen a file.\nPlease choose a file.")
+            return
+        port, FILE_SIZE = logic.logic(option=logic.DOWNLOAD_OVER_UDP, sock=self.send_server_sock, filename=FILENAME)
+        rdt = RDT_Receiver(port, self.server_ip, FILENAME)
+        download_thread_over_udp = Thread(target=rdt.main(), args=())
+        download_thread_over_udp.start()
 
     # ---------------------------------------------------------------
     # ***************** Auxiliary Methods For Buttons ***************
@@ -620,6 +633,9 @@ class GUI:
 
     def set_online_users_list(self, users_list: list) -> None:
         self.chat_online_users = users_list
+
+    def set_server_ip(self, server_ip):
+        self.server_ip = server_ip
 
     def set_server_files(self, server_files):
         self.server_files = server_files
