@@ -13,8 +13,6 @@ SEND_MSG_CODE = "03"  #
 SEND_BROADCAST_MSG_CODE = "04"  #
 FILES_LIST_CODE = "05"
 DOWNLOAD_FILE = "06"
-
-
 # ----------------------------------#
 
 
@@ -121,7 +119,7 @@ def analysis_confirms_msg(type_code, msg):
         # get port
         port = int(msg)
         
-        return (port, file_size)
+        return port, file_size
 
 
 def analysis_updates_msg(type_code, msg):
@@ -187,7 +185,7 @@ def analysis_errors_msg(type_code, msg):
     """
     error_type = msg[:1]
 
-    return (ERROR, type_code, error_type)
+    return ERROR, type_code, error_type
 
 
 def analysis_msg_main(msg):
