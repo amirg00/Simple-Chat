@@ -204,10 +204,12 @@ class Server:
 
         elif code == f"{Protocol.GET}{Protocol.DOWNLOAD_FILE}":
             PROTOCOL = message[3:6]
-            FILE_SIZE = message[6:8]
+            FILENAME_len = message[6:8]
             FILENAME = message[8:]
+            FILE_SIZE = os.path.getsize(f"./Files/{FILENAME}")
+            FILE_SIZE_len = str(FILE_SIZE).zfill(2)
             allocated_port = self.get_available_port()
-            response = f"{Protocol.CONFIRM}{Protocol.DOWNLOAD_FILE}{FILE_SIZE}{allocated_port}"
+            response = f"{Protocol.CONFIRM}{Protocol.DOWNLOAD_FILE}{FILE_SIZE_len}{FILE_SIZE}{allocated_port}"
             client_socket.send(response.encode())
 
             if PROTOCOL == "UDP":
