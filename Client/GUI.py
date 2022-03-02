@@ -209,12 +209,11 @@ class GUI:
                            width=65)
         # Files buttons:
         # files combo-box:
-        var = StringVar(value='Choose a file')
         server_files = Combobox(self.chat_window,
                                 state='readonly',
-                                textvariable=var,
                                 values=self.server_files,
                                 postcommand=lambda: self.update_server_files(server_files))
+        server_files.set("Choose a File")
         server_files.place(x=410,
                            y=10,
                            height=20,
@@ -265,20 +264,20 @@ class GUI:
                                      height=30,
                                      width=65)
 
-        proceed_button = Button(self.chat_window,
-                                text="Proceed",
-                                background="grey",
-                                height=2,
-                                width=8,
-                                cursor="hand2",
-                                command=lambda: self.proceed())
-        proceed_button.bind("<Enter>", lambda e: proceed_button.config(bg='#929292'))
-        proceed_button.bind("<Leave>", lambda e: proceed_button.config(bg='grey'))
+        download_button = Button(self.chat_window,
+                                 text="Download",
+                                 background="grey",
+                                 height=2,
+                                 width=8,
+                                 cursor="hand2",
+                                 command=lambda: self.download_file())
+        download_button.bind("<Enter>", lambda e: download_button.config(bg='#929292'))
+        download_button.bind("<Leave>", lambda e: download_button.config(bg='grey'))
 
-        proceed_button.place(x=640,
-                             y=420,
-                             height=30,
-                             width=65)
+        download_button.place(x=640,
+                              y=420,
+                              height=30,
+                              width=65)
         # files text box:
         files_textBox = Text(self.chat_window,
                              # bg="#17202A",
@@ -297,7 +296,7 @@ class GUI:
         # Scroll bar:
         scroll_bar = Scrollbar(files_textBox)
         scroll_bar.place(relheight=1.01,
-                         relx=0.965,
+                         relx=0.960,
                          y=-1)
         # attach textbox to scrollbar
         files_textBox.config(yscrollcommand=scroll_bar.set)
@@ -429,7 +428,7 @@ class GUI:
     def selected_protocol(self):
         pass
 
-    def proceed(self):
+    def download_file(self):
         pass
 
     # ---------------------------------------------------------------
