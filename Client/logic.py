@@ -6,11 +6,20 @@ SEND_MSG_OPTION = 1
 SEND_BROADCAST_MSG_OPTION = 2
 USERS_LIST_OPTION = 3
 FILES_LIST_OPTION = 4
+DOWNLOAD_OVER_UDP = 5
 EXIT_OPTION = 0
 
 MIN_OPTION = 0
 MAX_OPTION = 3
 
+def download_over_udp_handler(sock, filename):
+    msg = analysis.GET + analysis.DOWNLOAD_FILE
+    mag += "UDP"
+    msg += str(len(filename)).zfill(2) + filename
+    msg = msg.encode()
+    sock.sendall(msg)
+    ans = sock.recv(1024).decode()
+    return analysis.analysis_msg_main(ans)
 
 def files_list_handler(sock):
     msg = analysis.GET + analysis.FILES_LIST_CODE
@@ -65,7 +74,7 @@ def disconnect_handler(sock):
         sock.close()
 
 
-def logic(option, sock, message=None, target=None):
+def logic(option, sock, message=None, target=None, filename=None):
     if option is SEND_MSG_OPTION:
         send_msg_handler(sock, message, target)
     elif option is SEND_BROADCAST_MSG_OPTION:
@@ -74,5 +83,7 @@ def logic(option, sock, message=None, target=None):
         return users_list_handler(sock)
     elif option is FILES_LIST_OPTION:
         return files_list_handler(sock)
+    elif option is DOWNLOAD_OVER_UDP:
+        return download_over_udp_handler(sock, filename)
     else:
         disconnect_handler(sock)
