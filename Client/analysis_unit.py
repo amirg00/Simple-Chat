@@ -12,6 +12,7 @@ USERS_LIST_CODE = "02"  #
 SEND_MSG_CODE = "03"  #
 SEND_BROADCAST_MSG_CODE = "04"  #
 FILES_LIST_CODE = "05"
+DOWNLOAD_FILE = "06"
 
 
 # ----------------------------------#
@@ -108,6 +109,19 @@ def analysis_confirms_msg(type_code, msg):
                 msg = msg[filename_len:]
                 files_list.append(filename)  # add file to list
         return files_list
+        
+    # for msg start with 206
+    if type_code == DOWNLOAD_FILE:
+        # get file size in bytes
+        file_size_field_len = int(msg[:2])
+        msg = msg[2:]
+        file_size = msg[:file_size_field_len]
+        msg = msg[file_size_field_len:]
+        
+        # get port
+        port = int(msg)
+        
+        return (port, file_size)
 
 
 def analysis_updates_msg(type_code, msg):
