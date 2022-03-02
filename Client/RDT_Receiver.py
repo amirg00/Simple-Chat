@@ -67,6 +67,7 @@ class RDT_Receiver:
                 self.sock.sendto(packet_ack, self.ADDRESS)
                 if is_last_packet:
                     self.files_textbox.insert(END, f"The last byte of the file is: {application_data[-1]}\n")
+
             else:
                 self.last_is_order = False
                 print("GET PACKET NOT IN ORDER!")
