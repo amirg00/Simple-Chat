@@ -4,7 +4,6 @@ import time
 import tkinter
 from tkinter import *
 
-
 KB = 1024
 
 
@@ -43,7 +42,7 @@ class RDT_Receiver:
 
     def main(self):
         ack = 0
-        # i = 0
+        i = 0
         self.sock.sendto("READY".encode(), self.ADDRESS)
 
         while not self.last_is_order:
@@ -51,9 +50,9 @@ class RDT_Receiver:
             is_last_packet, seq, application_data = self.analysis_data(data)
 
             #################
-            # i += 1
-            # if i % 5 == 0:
-            #    continue
+            i += 1
+            if i % 5 == 0:
+                continue
             #################
 
             if seq == ack:
@@ -67,7 +66,6 @@ class RDT_Receiver:
                 self.sock.sendto(packet_ack, self.ADDRESS)
                 if is_last_packet:
                     self.files_textbox.insert(END, f"The last byte of the file is: {application_data[-1]}\n")
-
             else:
                 self.last_is_order = False
                 print("GET PACKET NOT IN ORDER!")

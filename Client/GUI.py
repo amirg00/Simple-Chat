@@ -449,7 +449,7 @@ class GUI:
             return
         port, FILE_SIZE = logic.logic(option=logic.DOWNLOAD_OVER_UDP, sock=self.send_server_sock, filename=FILENAME)
         rdt = RDT_Receiver(port, self.server_ip, FILENAME, self.USERNAME, self.files_textBox)
-        download_thread_over_udp = Thread(target=rdt.main(), args=())
+        download_thread_over_udp = Thread(target=rdt.main, args=())
         download_thread_over_udp.start()
 
     # ---------------------------------------------------------------

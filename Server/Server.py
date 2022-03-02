@@ -6,6 +6,7 @@ from Protocol import Protocol
 from RDT_Sender import RDT_Sender
 import os
 
+
 class Server:
     DESCRIPTION = """ This is the chat's server,
                       which responsible for responses for clients following the protocol.
@@ -214,7 +215,7 @@ class Server:
 
             if PROTOCOL == "UDP":
                 rdt = RDT_Sender(allocated_port, f"./Files/{FILENAME}")
-                sender_thread = Thread(target=rdt.main(), args=())
+                sender_thread = Thread(target=rdt.main, args=())
                 sender_thread.start()
             else:
                 pass  # here we will handle the TCP...
