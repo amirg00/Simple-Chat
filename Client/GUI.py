@@ -252,6 +252,11 @@ class GUI:
                              # state=DISABLED
                              )
         files_textBox.tag_configure('tag-center', justify='center')
+        # files_textBox.tag_configure('bg-color', background=)
+        files_textBox.tag_config('warning', background="yellow", foreground="red", font=('Helvetica', 10, 'bold'))
+        files_textBox.tag_config('success', background="#04fb54", font=('Helvetica', 10, 'bold'))
+        files_textBox.tag_config('last-byte', foreground="#ed1253", font=('Helvetica', 10, 'bold'))
+
         files_textBox.place(x=410,
                             y=40,
                             height=330,
@@ -611,10 +616,8 @@ class GUI:
         """
         textbox.configure(state=NORMAL)
         textbox.insert(END, ' ', 'tag-center')
-        textbox.configure(state=DISABLED)
         lbl = Label(textbox, bd=3, relief='solid', **kwargs, bg="#1ecbe1")
         textbox.window_create(END, window=lbl)
-        textbox.configure(state=NORMAL)
         textbox.insert(END, '\n\n')
         textbox.configure(state=DISABLED)
         textbox.see(END)

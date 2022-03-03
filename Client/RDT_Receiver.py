@@ -3,6 +3,8 @@ import os
 import time
 import tkinter
 from tkinter import *
+from tkinter import messagebox
+
 
 KB = 1024
 
@@ -67,21 +69,40 @@ class RDT_Receiver:
                 self.last_is_order = True if is_last_packet else False
                 ack = self.calc_ack(seq)
                 print("write to file..")
+                self.files_textbox.configure(state=NORMAL)
+
                 self.files_textbox.insert(END, f"write to file...\n")
+                self.files_textbox.configure(state=DISABLED)
+                self.files_textbox.see(END)
                 # print(is_last_packet, seq, application_data)
                 self.file.write(application_data)
                 packet_ack = self.build_ack_packet(ack)
                 self.sock.sendto(packet_ack, self.ADDRESS)
                 if is_last_packet:
-                    self.files_textbox.insert(END, f"The last byte of the file is: {application_data[-1]}\n")
+
+                    self.files_textbox.configure(state=NORMAL)
+                    self.files_textbox.insert(END, f"Last byte of the file is: ")
+                    self.files_textbox.insert(END, f"{application_data[-1]}\n", "last-byte")
+
+                    self.files_textbox.configure(state=DISABLED)
+                    self.files_textbox.see(END)
             else:
                 self.last_is_order = False
                 print("GET PACKET NOT IN ORDER!")
-                self.files_textbox.insert(END, f"GET PACKET NOT IN ORDER!\n")
-
+                #self.bg_color_label(color="red",
+                #                    text=f"GET PACKET NOT IN ORDER!\n")
+                self.files_textbox.configure(state=NORMAL)
+                self.files_textbox.insert(END, f"GOT PACKET NOT IN ORDER!\n", 'warning')
+                self.files_textbox.configure(state=DISABLED)
+                self.files_textbox.see(END)
                 # print(is_last_packet, seq, application_data, "GET PACKET NOT IN ORDER!")
         self.file.close()
         self.sock.close()
+        self.files_textbox.configure(state=NORMAL)
+        self.files_textbox.insert(END, f"File has downloaded successfully!!!\n", 'success')
+        self.files_textbox.configure(state=DISABLED)
+        self.files_textbox.see(END)
+
         print("done")
 
     def update_progress_bar(self, curr_bytes, total):
@@ -90,3 +111,19 @@ class RDT_Receiver:
         print(curr_percentages)
         self.prog_bar['value'] = curr_percentages
         self.per_lbl['text'] = f"{self.prog_bar['value']}%"
+
+    # def bg_color_label(self, color, **kwargs) -> None:
+    #     """
+    #     Method created a decorated box for leaving and joining messages,
+    #     which will be centered at the center within the chat's text box, after inserting
+    #     the decorated label to the text box.
+    #     :param color: a background color
+    #     :param kwargs: more values...
+    #     :return: None
+    #     """
+    #     self.files_textbox.configure(state=NORMAL)
+    #     lbl = Label(self.files_textbox, bd=3, relief='solid', **kwargs, bg=color)
+    #     self.files_textbox.insert(END, lbl)
+    #     self.files_textbox.insert(END, '\n\n')
+    #     self.files_textbox.configure(state=DISABLED)
+    #     self.files_textbox.see(END)
