@@ -29,6 +29,7 @@ class RDT_Sender:
 
         self.window = []
         self.WINDOW_SIZE = 4
+        self.MAX_WINDOW_SIZE = None
         self.can_window_slide = True
 
         self.ack = 0
@@ -43,7 +44,7 @@ class RDT_Sender:
         all of this saved in window as tuple of seq and packet.
         """
         is_last = 0 if len(self.BUFFER) > PACKET_SIZE else 1
-        seq = str(0 if not self.window else (self.window[-1][0] + 1) % self.WINDOW_SIZE)
+        seq = str(0 if not self.window else (self.window[-1][0] + 1) % (self.MAX_WINDOW_SIZE + 1)).zfill(2)
         application_data = self.BUFFER[:PACKET_SIZE]
         self.BUFFER = self.BUFFER[PACKET_SIZE:]
         packet = str(is_last).encode() + seq.encode() + application_data
@@ -53,7 +54,19 @@ class RDT_Sender:
         """send all data in window to user"""
         seq, packet = self.window[-1]
         self.sock.sendto(packet, self.CLIENT_ADDRESS)
-
+    
+    def reduce_window(self):
+        """back second half of window back to buffer."""
+        if len(self.window)/2 >= 2:
+            # back to buffer. (actualy, this is the reducing window)
+            for i in range(len(self.window)//2):
+                seq, packet = self.window.pop(-1)
+                application_data = packet[3:]
+                self.BUFFER = application_data + self.BUFFER
+        
+        # update current window-size after reducing
+        self.WINDOW_SIZE = len(self.window)
+    
     def retransmission(self):
         """send packet again"""
         for seq, packet in self.window:
@@ -62,7 +75,7 @@ class RDT_Sender:
     def set_next_seq(self):
         """change status of next sequence that we want get in ack"""
         self.next_seq += 1
-        self.next_seq %= self.WINDOW_SIZE
+        self.next_seq %= (self.MAX_WINDOW_SIZE + 1)
 
     def is_last_ack(self):
         """return True if the ACK was arrived is the last one (ack of last packet..)"""
@@ -93,6 +106,7 @@ class RDT_Sender:
         if case == Option.SEND:
             # build packet, insert to the window and send it.
             self.build_packet()
+            print("Window after build packet: ",len(self.window))
             self.send_packet()
 
             # stop fill the window if window is full
@@ -112,7 +126,13 @@ class RDT_Sender:
                 # (this is the packet was acked!)
                 # actually, this is the sliding(!)
                 self.window.pop(0)
-
+                print("Window after ack came: ", len(self.window))
+                
+                # increase lineary the window size until the maximum
+                # that was limited by user side himself
+                if self.WINDOW_SIZE < self.MAX_WINDOW_SIZE:
+                    self.WINDOW_SIZE += 1
+                
                 # check if still have more data to sliding on it.
                 # if no data-to-send was left outside the window,
                 # so it's mean we get close to the end...
@@ -126,16 +146,22 @@ class RDT_Sender:
 
         elif case == Option.TIMEOUT:
             print("timeout!")
-            # when TIMEOUT was happened, send
-            # again all the packet inside the window.
+            # when TIMEOUT was happened, reduce the size
+            # of window ans send again all the packets
+            # inside the reduced window.
+            self.reduce_window()
+            print("Window after timeout came: ", len(self.window))
             self.retransmission()
 
     def main(self):
         data, client_address = self.sock.recvfrom(KB)
         self.CLIENT_ADDRESS = client_address
-        if data.decode() == "READY":
-            self.sock.settimeout(2)  # set 2 seconds for waiting ack back
-            self.go_back_n_loop()
+        
+        # TAKE WINDOW SIZE FROM THE OTHER SIDE.
+        self.MAX_WINDOW_SIZE = int(data.decode())
+        self.WINDOW_SIZE = self.MAX_WINDOW_SIZE
+        self.sock.settimeout(2)  # set 2 seconds for waiting ack back
+        self.go_back_n_loop()
 
         print("Sending is done")
         self.sock.close()
