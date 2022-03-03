@@ -106,7 +106,7 @@ class RDT_Sender:
         if case == Option.SEND:
             # build packet, insert to the window and send it.
             self.build_packet()
-            print("Window after build packet: ",len(self.window))
+            print("Window after build packet: ", len(self.window))
             self.send_packet()
 
             # stop fill the window if window is full

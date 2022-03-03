@@ -70,7 +70,7 @@ class Server:
             message = client_socket.recv(1024).decode()
             print(message)
             try:
-                if "\n" in message:
+                if "\r\n" in message:
                     continue
             except:
                 pass

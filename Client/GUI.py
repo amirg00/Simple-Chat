@@ -196,6 +196,8 @@ class GUI:
                              command=lambda: self.send_button(client_msg, to=clicked.get()))
         send_button.bind("<Enter>", lambda e: send_button.config(bg='#0d0dff', cursor="hand2"))
         send_button.bind("<Leave>", lambda e: send_button.config(bg='blue', cursor="arrow"))
+        # after pressing enter this will press send button.
+        # send_button.bind('<Return>', lambda e: self.send_button(client_msg, to=clicked.get()))
 
         send_button.place(x=300,
                           y=420,
@@ -256,6 +258,8 @@ class GUI:
         files_textBox.tag_config('warning', background="yellow", foreground="red", font=('Helvetica', 10, 'bold'))
         files_textBox.tag_config('success', background="#04fb54", font=('Helvetica', 10, 'bold'))
         files_textBox.tag_config('last-byte', foreground="#ed1253", font=('Helvetica', 10, 'bold'))
+        files_textBox.tag_config('switch-protocol', foreground="#08f79e", font=('Helvetica', 10, 'bold'))
+        files_textBox.tag_configure("bold", font="Helvetica 10 bold")
 
         files_textBox.place(x=410,
                             y=40,
@@ -350,10 +354,14 @@ class GUI:
         :return: None
         """
         client_msg = client_message.get(1.0, 'end-1c')
+        print("--------------")
+        print("\t" in client_msg)
+        print("--------------")
         if to == "everyone":
             self.chat_textBox.configure(state=NORMAL)
             self.chat_textBox.insert(END, f"Me to everyone:", "bold")
             self.chat_textBox.insert(END, f" {client_msg}\n\n")
+            client_message.delete(1.0, END)
             self.chat_textBox.configure(state=DISABLED)
             self.chat_textBox.see(END)
             choice = logic.SEND_BROADCAST_MSG_OPTION
@@ -362,10 +370,10 @@ class GUI:
             self.chat_textBox.configure(state=NORMAL)
             self.chat_textBox.insert(END, f"Me to {to}:", "bold")
             self.chat_textBox.insert(END, f" {client_msg}\n\n")
+            client_message.delete(1.0, END)
             self.chat_textBox.configure(state=DISABLED)
             self.chat_textBox.see(END)
             logic.logic(logic.SEND_MSG_OPTION, self.send_server_sock, message=client_msg, target=to)
-        client_message.delete('1.0', END)
 
     def connect_to_chat(self, SERVER_IP: str, SERVER_PORT: str, USERNAME: str) -> None:
         """
@@ -386,12 +394,21 @@ class GUI:
         self.set_username(USERNAME)
 
         # Converting the string port to the real integer port number.
+        if not SERVER_PORT.isnumeric() or int(SERVER_PORT) != 13337:
+            messagebox.showerror("Port Incorrect", "Error: port has to be 13337.")
+            return
         server_port = int(SERVER_PORT)
 
         # connect to the server
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         server_addr = (SERVER_IP, server_port)
-        sock.connect(server_addr)
+        try:
+            sock.connect(server_addr)
+        except:
+            messagebox.showerror("Connection ERROR", "ERROR - Details aren't correct, or server isn't up."
+                                                     "\nPlease try again later, "
+                                                     "and make sure your IP is correct.")
+            return
         self.chat_window.title(f"Chat Room - {USERNAME}")
         self.set_server_sock(sock)
 
@@ -599,9 +616,9 @@ class GUI:
         print(choice)
         self.files_textBox.configure(state=NORMAL)
         if choice == 1:
-            self.files_textBox.insert(END, f"Download protocol has set to TCP\n")
+            self.files_textBox.insert(END, f"Download protocol has set to TCP\n", "bold")
         else:
-            self.files_textBox.insert(END, f"Download protocol has set to UDP\n")
+            self.files_textBox.insert(END, f"Download protocol has set to UDP\n", "bold")
         self.files_textBox.configure(state=DISABLED)
         self.files_textBox.see(END)
 

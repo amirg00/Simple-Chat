@@ -72,8 +72,7 @@ class RDT_Receiver:
                 ack = self.calc_ack(seq)
                 print("write to file..")
                 self.files_textbox.configure(state=NORMAL)
-
-                self.files_textbox.insert(END, f"write to file...\n")
+                self.files_textbox.insert(END, f"Writing to file...\n", "bold")
                 self.files_textbox.configure(state=DISABLED)
                 self.files_textbox.see(END)
                 # print(is_last_packet, seq, application_data)
@@ -83,7 +82,7 @@ class RDT_Receiver:
                 if is_last_packet:
 
                     self.files_textbox.configure(state=NORMAL)
-                    self.files_textbox.insert(END, f"Last byte of the file is: ")
+                    self.files_textbox.insert(END, f"Last byte of the file is: ", "bold")
                     self.files_textbox.insert(END, f"{application_data[-1]}\n", "last-byte")
 
                     self.files_textbox.configure(state=DISABLED)
