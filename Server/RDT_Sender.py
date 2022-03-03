@@ -164,4 +164,5 @@ class RDT_Sender:
         self.go_back_n_loop()
 
         print("Sending is done")
+
         self.sock.close()

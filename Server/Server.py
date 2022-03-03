@@ -204,6 +204,7 @@ class Server:
             return response
 
         elif code == f"{Protocol.GET}{Protocol.DOWNLOAD_FILE}":
+            USERNAME = ""
             PROTOCOL = message[3:6]
             FILENAME_len = message[6:8]
             FILENAME = message[8:]
@@ -215,11 +216,15 @@ class Server:
 
             if PROTOCOL == "UDP":
                 rdt = RDT_Sender(allocated_port, f"./Files/{FILENAME}")
-                sender_thread = Thread(target=rdt.main, args=())
+                sender_thread = Thread(target=self.run_rdt, args=(rdt, allocated_port, ))
                 sender_thread.start()
             else:
                 sender_thread = Thread(target=self.send_file_by_TCP, args=(allocated_port, f"./Files/{FILENAME}", ))
                 sender_thread.start()
+
+    def run_rdt(self, rdt_ref, port):
+        rdt_ref.main()
+        self.allocated_ports[port] = True
 
     def send_file_by_TCP(self, allocated_port, filename):
         transfer_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -235,6 +240,7 @@ class Server:
                 client_socket.sendall(pkt)
         file.close()
         transfer_sock.close()
+        self.allocated_ports[allocated_port] = True
 
     def check_valid_username(self, username: str) -> (bool, int):
         """
@@ -316,6 +322,7 @@ class Server:
         :return: None
         """
         port = self.__connected_clients[username].get_PORT()
+        print(port)
         self.allocated_ports[port] = True
         self.__connected_clients[username].set_PORT(-1)
 
