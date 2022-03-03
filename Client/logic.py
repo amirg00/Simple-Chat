@@ -13,6 +13,7 @@ EXIT_OPTION = 0
 MIN_OPTION = 0
 MAX_OPTION = 3
 
+
 def download_over_tcp_handler(sock, filename):
     msg = analysis.GET + analysis.DOWNLOAD_FILE
     msg += "TCP"
@@ -21,6 +22,7 @@ def download_over_tcp_handler(sock, filename):
     sock.sendall(msg)
     ans = sock.recv(1024).decode()
     return analysis.analysis_msg_main(ans)
+
 
 def download_over_udp_handler(sock, filename):
     msg = analysis.GET + analysis.DOWNLOAD_FILE
@@ -96,7 +98,7 @@ def logic(option, sock, message=None, target=None, filename=None):
         return files_list_handler(sock)
     elif option is DOWNLOAD_OVER_UDP:
         return download_over_udp_handler(sock, filename)
-    else option is DOWNLOAD_OVER_TCP:
+    elif option is DOWNLOAD_OVER_TCP:
         return download_over_tcp_handler(sock, filename)
     else:
         disconnect_handler(sock)

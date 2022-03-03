@@ -1,13 +1,16 @@
 import threading
+import time
 from threading import Thread
 from tkinter import *
 from tkinter import messagebox
-from tkinter.ttk import Combobox
+from tkinter.ttk import Combobox, Progressbar
+
 
 import analysis_unit
 import logic
 from RDT_Receiver import RDT_Receiver
 import socket
+import os
 
 
 class GUI:
@@ -16,6 +19,8 @@ class GUI:
         self.send_server_sock = None
         self.chat_textBox = None
         self.files_textBox = None
+        self.tranfer_progress_bar = None
+        self.percentages = None
         self.users_menu = None
         self.users_var = None
         self.USERNAME = ""
@@ -222,58 +227,14 @@ class GUI:
                            height=20,
                            width=300)
 
-        select_file_button = Button(self.chat_window,
-                                    text="Choose File",
-                                    background="grey",
-                                    height=2,
-                                    width=8,
-                                    cursor="hand2",
-                                    command=lambda: self.select_file())
-        select_file_button.bind("<Enter>", lambda e: select_file_button.config(bg='#929292'))
-        select_file_button.bind("<Leave>", lambda e: select_file_button.config(bg='grey'))
-
-        select_file_button.place(x=420,
-                                 y=420,
-                                 height=30,
-                                 width=70)
-
-        save_file_button = Button(self.chat_window,
-                                  text="Save File",
-                                  background="grey",
-                                  height=2,
-                                  width=8,
-                                  cursor="hand2",
-                                  command=lambda: self.save_file())
-        save_file_button.bind("<Enter>", lambda e: save_file_button.config(bg='#929292'))
-        save_file_button.bind("<Leave>", lambda e: save_file_button.config(bg='grey'))
-
-        save_file_button.place(x=498,
-                               y=420,
-                               height=30,
-                               width=65)
-
-        select_protocol_button = Button(self.chat_window,
-                                        text="protocol",
-                                        background="grey",
-                                        height=2,
-                                        width=8,
-                                        cursor="hand2",
-                                        command=lambda: self.selected_protocol())
-        select_protocol_button.bind("<Enter>", lambda e: select_protocol_button.config(bg='#929292'))
-        select_protocol_button.bind("<Leave>", lambda e: select_protocol_button.config(bg='grey'))
-
-        select_protocol_button.place(x=570,
-                                     y=420,
-                                     height=30,
-                                     width=65)
-
         download_button = Button(self.chat_window,
                                  text="Download",
                                  background="grey",
                                  height=2,
                                  width=8,
                                  cursor="hand2",
-                                 command=lambda: self.download_file(server_files))
+                                 command=lambda: self.download_file(server_files,
+                                                                    protocol=("TCP" if choice.get() == 1 else "UDP")))
         download_button.bind("<Enter>", lambda e: download_button.config(bg='#929292'))
         download_button.bind("<Leave>", lambda e: download_button.config(bg='grey'))
 
@@ -306,11 +267,39 @@ class GUI:
         files_textBox.config(yscrollcommand=scroll_bar.set)
         scroll_bar.config(command=files_textBox.yview, cursor="hand2")
 
+        labelframe = LabelFrame(self.chat_window, text="Protocol")
+        labelframe.pack()
+        labelframe.place(x=420,
+                         y=400,
+                         height=70,
+                         width=100)
+        choice = IntVar()
+        Radiobutton(labelframe,
+                    text='TCP',
+                    variable=choice,
+                    value=1,
+                    command=lambda: self.protocol_message_textbox(choice.get())).pack()
+        Radiobutton(labelframe,
+                    text='UDP',
+                    variable=choice,
+                    value=2,
+                    command=lambda: self.protocol_message_textbox(choice.get())).pack()
+
         # labels:
         curr_user = Label(self.chat_window,
                           text="Me to: ",
                           font=('Helvetica', 12, 'bold'))
         curr_user.place(x=0, y=385)
+
+        # progress bar:
+        progress_bar = Progressbar(self.chat_window,
+                                   orient='horizontal',
+                                   mode='determinate',
+                                   length=280)
+        self.set_progress_bar(progress_bar)
+        progress_bar.place(x=420, y=375)
+        self.percentages = Label(self.chat_window, text="%")
+        self.percentages.place(x=705, y=375)
 
     # -------------------------------------------------
     # ***************** Buttons Section ***************
@@ -441,20 +430,60 @@ class GUI:
     def selected_protocol(self):
         pass
 
-    def download_file(self, server_files_combobox: Combobox):
+    def download_file(self, server_files_combobox: Combobox, protocol=None):
+        print(protocol)
+        print("------------------")
         FILENAME = server_files_combobox.get()
         print(FILENAME)
         if FILENAME == "Choose a File":
             messagebox.showerror("File Not Found", "You haven't chosen a file.\nPlease choose a file.")
             return
-        port, FILE_SIZE = logic.logic(option=logic.DOWNLOAD_OVER_UDP, sock=self.send_server_sock, filename=FILENAME)
-        rdt = RDT_Receiver(port, self.server_ip, FILENAME, self.USERNAME, self.files_textBox)
-        download_thread_over_udp = Thread(target=rdt.main, args=())
-        download_thread_over_udp.start()
+        if protocol == "UDP":
+            port, FILE_SIZE = logic.logic(option=logic.DOWNLOAD_OVER_UDP, sock=self.send_server_sock, filename=FILENAME)
+            rdt = RDT_Receiver(port, self.server_ip, FILENAME, self.USERNAME, self.files_textBox, self.percentages,
+                               self.tranfer_progress_bar, self.chat_window, FILE_SIZE)
+            download_thread_over_udp = Thread(target=rdt.main, args=())
+            download_thread_over_udp.start()
+        else:
+            port, FILE_SIZE = logic.logic(option=logic.DOWNLOAD_OVER_TCP, sock=self.send_server_sock, filename=FILENAME)
+            receive_thread = Thread(target=self.receive_file_by_TCP, args=(port, FILENAME, FILE_SIZE,))
+            receive_thread.start()
 
     # ---------------------------------------------------------------
     # ***************** Auxiliary Methods For Buttons ***************
     # ---------------------------------------------------------------
+
+    def receive_file_by_TCP(self, PORT, FILENAME, FILE_SIZE):
+        # connect to the server
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        server_addr = (self.server_ip, PORT)
+        sock.connect(server_addr)
+        KB = 1024
+        total_bytes = 0
+        if not os.path.isdir(f"./Downloaded_Files/{self.USERNAME}"):
+            dirName = f"./Downloaded_Files/{self.USERNAME}"
+            os.makedirs(dirName)
+
+        with open(f"./Downloaded_Files/{self.USERNAME}/{FILENAME}", "wb") as file:
+            while True:
+                receive_bytes = sock.recv(KB)
+                # print(len(receive_bytes))
+                total_bytes += len(receive_bytes)
+                self.update_progress_bar(total_bytes, int(FILE_SIZE))
+                if not receive_bytes:
+                    break
+                file.write(receive_bytes)
+
+        file.close()
+        sock.close()
+
+    def update_progress_bar(self, curr_bytes, total):
+        self.chat_window.update_idletasks()
+        curr_percentages = round((curr_bytes/total) * 100)
+        print(curr_percentages)
+        self.tranfer_progress_bar['value'] = curr_percentages
+        self.percentages['text'] = f"{self.tranfer_progress_bar['value']}%"
+        # txt['text'] = self.tranfer_progress_bar['value'], '%'
 
     def log_in_to_chat(self, sock, username) -> int:
         """
@@ -561,6 +590,16 @@ class GUI:
                 self.chat_textBox.see(END)
                 # print(f"{username} to everyone: {msg}")
 
+    def protocol_message_textbox(self, choice):
+        print(choice)
+        self.files_textBox.configure(state=NORMAL)
+        if choice == 1:
+            self.files_textBox.insert(END, f"Download protocol has set to TCP\n")
+        else:
+            self.files_textBox.insert(END, f"Download protocol has set to UDP\n")
+        self.files_textBox.configure(state=DISABLED)
+        self.files_textBox.see(END)
+
     def center_label(self, textbox, **kwargs) -> None:
         """
         Method created a decorated box for leaving and joining messages,
@@ -651,6 +690,9 @@ class GUI:
 
     def set_username(self, username):
         self.USERNAME = username
+
+    def set_progress_bar(self, progress_bar):
+        self.tranfer_progress_bar = progress_bar
 
 
 if __name__ == "__main__":

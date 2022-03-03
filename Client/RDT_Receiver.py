@@ -9,7 +9,7 @@ KB = 1024
 
 class RDT_Receiver:
     # TODO: print logs for file textbox in GUI, get it from the constructor.
-    def __init__(self, port, server_ip, filename, username, files_textbox):
+    def __init__(self, port, server_ip, filename, username, files_textbox, percentages_lbl, progress_bar, chat_window, FILE_SIZE):
         self.PORT = port
         self.FILENAME = filename
         if not os.path.isdir(f"./Downloaded_Files/{username}"):
@@ -23,6 +23,10 @@ class RDT_Receiver:
         self.last_is_order = False
 
         self.files_textbox = files_textbox
+        self.chat_window = chat_window
+        self.per_lbl = percentages_lbl
+        self.prog_bar = progress_bar
+        self.FILE_SIZE = int(FILE_SIZE)
 
     def analysis_data(self, data):
         is_last_packet = True if data[:1].decode() == '1' else False
@@ -41,6 +45,7 @@ class RDT_Receiver:
         return str(ack).encode()
 
     def main(self):
+        total_bytes = 0
         ack = 0
         i = 0
         self.sock.sendto("READY".encode(), self.ADDRESS)
@@ -56,6 +61,9 @@ class RDT_Receiver:
             #################
 
             if seq == ack:
+                total_bytes += len(data)
+                self.update_progress_bar(total_bytes, self.FILE_SIZE)
+                print(total_bytes)
                 self.last_is_order = True if is_last_packet else False
                 ack = self.calc_ack(seq)
                 print("write to file..")
@@ -75,3 +83,10 @@ class RDT_Receiver:
         self.file.close()
         self.sock.close()
         print("done")
+
+    def update_progress_bar(self, curr_bytes, total):
+        self.chat_window.update_idletasks()
+        curr_percentages = round((curr_bytes / total) * 100)
+        print(curr_percentages)
+        self.prog_bar['value'] = curr_percentages
+        self.per_lbl['text'] = f"{self.prog_bar['value']}%"

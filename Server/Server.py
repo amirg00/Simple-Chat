@@ -218,7 +218,23 @@ class Server:
                 sender_thread = Thread(target=rdt.main, args=())
                 sender_thread.start()
             else:
-                pass  # here we will handle the TCP...
+                sender_thread = Thread(target=self.send_file_by_TCP, args=(allocated_port, f"./Files/{FILENAME}", ))
+                sender_thread.start()
+
+    def send_file_by_TCP(self, allocated_port, filename):
+        transfer_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        transfer_sock.bind(('', allocated_port))
+        transfer_sock.listen(1)
+        client_socket, client_address = transfer_sock.accept()
+        BUFFER_SIZE = 1000
+        with open(filename, "rb") as file:
+            while True:
+                pkt = file.read(BUFFER_SIZE)
+                if not pkt:
+                    break
+                client_socket.sendall(pkt)
+        file.close()
+        transfer_sock.close()
 
     def check_valid_username(self, username: str) -> (bool, int):
         """
