@@ -21,7 +21,7 @@ class RDT_Receiver:
         self.file = open(f"./Downloaded_Files/{username}/{filename}", "wb")
         self.ADDRESS = (server_ip, port)
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self.WINDOW_SIZE = 4
+        self.WINDOW_SIZE = 20+1
         self.last_is_order = False
 
         self.files_textbox = files_textbox
@@ -33,8 +33,8 @@ class RDT_Receiver:
     def analysis_data(self, data):
         is_last_packet = True if data[:1].decode() == '1' else False
         data = data[1:]
-        seq = int(data[:1].decode())
-        data = data[1:]
+        seq = int(data[:2].decode())
+        data = data[2:]
         application_data = data
         return is_last_packet, seq, application_data
 
@@ -50,7 +50,7 @@ class RDT_Receiver:
         total_bytes = 0
         ack = 0
         i = 0
-        self.sock.sendto("READY".encode(), self.ADDRESS)
+        self.sock.sendto("20".encode(), self.ADDRESS)
 
         while not self.last_is_order:
             data, addr = self.sock.recvfrom(KB)
@@ -58,7 +58,9 @@ class RDT_Receiver:
 
             #################
             i += 1
-            if i % 5 == 0:
+            if i % 10 == 0:
+                time.sleep(2)
+            if i % 11 == 0:
                 continue
             #################
 
@@ -87,6 +89,7 @@ class RDT_Receiver:
                     self.files_textbox.configure(state=DISABLED)
                     self.files_textbox.see(END)
             else:
+                self.sock.sendto(packet_ack, self.ADDRESS) # try to lated acks
                 self.last_is_order = False
                 print("GET PACKET NOT IN ORDER!")
                 #self.bg_color_label(color="red",
