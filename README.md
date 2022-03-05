@@ -7,7 +7,7 @@
   <ol>
     <li><a href="#about-the-project">About The Project</a></li>
     <li><a href="#plot-graph">System's Structure</a></li>
-    <li><a href="#algorithms">Fast Reliable UDP Via Go-Back-N With CC</a></li>
+    <li><a href="#algorithms">Fast Reliable UDP Via Go-Back-N With CC Algorithm</a></li>
     <li><a href="#code-details">Code Details</a></li>
     <li><a href="#how-to-run">How  to run</a></li>
     <li><a href="#languages-and-tools">Languages and Tools</a></li>
@@ -37,7 +37,7 @@ This is a glance from above of the server's architecture.
 <a href="https://gifyu.com/image/SMWtE"><img src="https://s7.gifyu.com/images/Screenshot_35607dc5643cf3c59.png" alt="Screenshot_35607dc5643cf3c59.png" border="0" /></a>
 </p>
 
-###Explanation of Server's Architecture 
+### Explanation of Server's Architecture 
 
 In the server there exist a listening unit, which waits for user connections.
 In addition, there is also a client's service unit, which provides 
@@ -50,7 +50,7 @@ the data analysis unit will analyze client's message following the protocol.
 - For some more information about the protocol, click [here](put here a link)
 
 
-###Explanation of Client's Architecture 
+### Explanation of Client's Architecture 
 
 This is a glance from above of the client's architecture. 
 
@@ -65,14 +65,25 @@ unit uses methods to make the queries according to the client's interest,
 these queries will be analyzed in server's side, and the latter
 returns a corresponded response, following the protocol, back to the logic unit.
 ---
-##Fast Reliable UDP Via Go-Back-N With CC
+## Fast Reliable UDP Via Go-Back-N With CC Algorithm
+
+
+### Sender's Side
 <p align="center">
-<img align="center" src="https://s7.gifyu.com/images/Fast_realble_UDP_with_CC.drawio-2.png" />
+<img align="center" src="https://s7.gifyu.com/images/Fast_realble_UDP_with_CC.drawio-1.png" />
+</p>
+
+
+
+### Receiver's Side
+<p align="center">
+<img align="center" src="https://s7.gifyu.com/images/Fast_reliable_UDP_reciver_side.drawio.png" />
 </p>
 
 ---
 
 <!-- code-details -->
+
 
 ## Code Details
 
