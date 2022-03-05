@@ -222,11 +222,23 @@ class Server:
                 sender_thread = Thread(target=self.send_file_by_TCP, args=(allocated_port, f"./Files/{FILENAME}", ))
                 sender_thread.start()
 
-    def run_rdt(self, rdt_ref, port):
+    def run_rdt(self, rdt_ref, port) -> None:
+        """
+        This method runs the rdt sender with a given allocated port.
+        :param rdt_ref: rdt object
+        :param port: a given allocated port from server.
+        :return:None
+        """
         rdt_ref.main()
         self.allocated_ports[port] = True
 
-    def send_file_by_TCP(self, allocated_port, filename):
+    def send_file_by_TCP(self, allocated_port, filename) -> None:
+        """
+        Method sends the file by tcp connection.
+        :param allocated_port: given allocated port from server.
+        :param filename: given filename
+        :return: None
+        """
         transfer_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         transfer_sock.bind(('', allocated_port))
         transfer_sock.listen(1)

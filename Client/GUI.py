@@ -127,15 +127,6 @@ class GUI:
         self.chat_window.resizable(width=False, height=False)
         self.chat_window.configure(bg="#ACADA8")
 
-        # canvas = Canvas(self.chat_window, width=750, height=500, bg="#ACADA8")
-        # canvas.pack()
-
-        # Add lines in canvas widget
-        # canvas.create_line(0, 10, 375, 10, fill="black", width=2)
-        # canvas.create_line(375, 10, 375, 380, fill="black", width=2)
-        # canvas.create_line(0, 380, 375, 380, fill="black", width=2)
-        # canvas.create_line(3, 10, 3, 380, fill="black", width=2)
-
         text_chat = Text(self.chat_window,
                          # bg="#ACADA8",
                          # fg="#EAECEE",
@@ -183,8 +174,7 @@ class GUI:
                                     *self.chat_online_users,
                                     style="TMenubutton")
         users_menu.configure(cursor="hand2")
-        # users_menu.config(bg="#ACADA8", highlightthickness=0)
-        # users_menu['menu'].config(bg="#ACADA8")
+
         users_menu.place(x=50,
                          y=385,
                          height=25,
@@ -204,8 +194,7 @@ class GUI:
                              command=lambda: self.send_button(client_msg, to=clicked.get()))
         send_button.bind("<Enter>", lambda e: send_button.config(bg='#0d0dff', cursor="hand2"))
         send_button.bind("<Leave>", lambda e: send_button.config(bg='blue', cursor="arrow"))
-        # after pressing enter this will press send button.
-        # send_button.bind('<Return>', lambda e: self.send_button(client_msg, to=clicked.get()))
+
 
         send_button.place(x=300,
                           y=420,
@@ -262,7 +251,6 @@ class GUI:
                              # state=DISABLED
                              )
         files_textBox.tag_configure('tag-center', justify='center')
-        # files_textBox.tag_configure('bg-color', background=)
         files_textBox.tag_config('warning', background="yellow", foreground="red", font=('Helvetica', 10, 'bold'))
         files_textBox.tag_config('success', background="#04fb54", font=('Helvetica', 10, 'bold'))
         files_textBox.tag_config('last-byte', foreground="#ed1253", font=('Helvetica', 10, 'bold'))
@@ -452,22 +440,14 @@ class GUI:
         """
         self.connect_window.destroy()
 
-    def select_file(self):
+    def download_file(self, server_files_combobox: Combobox, protocol=None):
         """
-        Method selects a file offered by the server.
+        This method downloads the file by the given protocol.
+        :param server_files_combobox: the ref of the files combobox.
+        :param protocol: preferred download protocol.
         :return:
         """
-        pass
-
-    def save_file(self):
-        pass
-
-    def selected_protocol(self):
-        pass
-
-    def download_file(self, server_files_combobox: Combobox, protocol=None):
         print(protocol)
-        print("------------------")
         FILENAME = server_files_combobox.get()
         print(FILENAME)
         if FILENAME == "Choose a File":
@@ -518,7 +498,6 @@ class GUI:
         print(curr_percentages)
         self.transfer_progress_bar['value'] = curr_percentages
         self.percentages['text'] = f"{self.transfer_progress_bar['value']}%"
-        # txt['text'] = self.transfer_progress_bar['value'], '%'
 
     def log_in_to_chat(self, sock, username) -> int:
         """
@@ -625,7 +604,13 @@ class GUI:
                 self.chat_textBox.see(END)
                 # print(f"{username} to everyone: {msg}")
 
-    def protocol_message_textbox(self, choice):
+    def protocol_message_textbox(self, choice) -> None:
+        """
+        This method gets the preferred protocol by the user,
+        and then insert logs for that.
+        :param choice: the choice of tcp or udp
+        :return: None
+        """
         print(choice)
         self.files_textBox.configure(state=NORMAL)
         if choice == 1:
@@ -679,6 +664,10 @@ class GUI:
         self.set_server_files(files)
         files_combobox.config(values=self.server_files)
 
+    # ---------------------------------------------------------------
+    # ************************  Set Methods *************************
+    # ---------------------------------------------------------------
+
     def set_server_sock(self, sock) -> None:
         """
         The method sets the socket property of the class, to be the given socket.
@@ -686,9 +675,6 @@ class GUI:
         :return: None
         """
         self.send_server_sock = sock
-
-    def display_message(self):
-        pass
 
     def set_chat_textBox(self, text: Text) -> None:
         """

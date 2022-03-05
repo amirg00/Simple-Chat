@@ -75,7 +75,6 @@ class RDT_Receiver:
                 self.files_textbox.insert(END, f"Writing to file...\n", "bold")
                 self.files_textbox.configure(state=DISABLED)
                 self.files_textbox.see(END)
-                # print(is_last_packet, seq, application_data)
                 self.file.write(application_data)
                 packet_ack = self.build_ack_packet(ack)
                 self.sock.sendto(packet_ack, self.ADDRESS)
@@ -91,8 +90,6 @@ class RDT_Receiver:
                 self.sock.sendto(packet_ack, self.ADDRESS) # try to lated acks
                 self.last_is_order = False
                 print("GET PACKET NOT IN ORDER!")
-                #self.bg_color_label(color="red",
-                #                    text=f"GET PACKET NOT IN ORDER!\n")
                 self.files_textbox.configure(state=NORMAL)
                 self.files_textbox.insert(END, f"GOT PACKET NOT IN ORDER!\n", 'warning')
                 self.files_textbox.configure(state=DISABLED)
@@ -107,25 +104,14 @@ class RDT_Receiver:
 
         print("done")
 
-    def update_progress_bar(self, curr_bytes, total):
+    def update_progress_bar(self, curr_bytes, total) -> None:
+        """
+        The method updates the progress bar by the packets.
+        :param curr_bytes: current total bytes downloaded from file.
+        :param total: the total file size.
+        :return: None
+        """
         self.chat_window.update_idletasks()
         curr_percentages = round((curr_bytes / total) * 100)
-        print(curr_percentages)
         self.prog_bar['value'] = curr_percentages
         self.per_lbl['text'] = f"{self.prog_bar['value']}%"
-
-    # def bg_color_label(self, color, **kwargs) -> None:
-    #     """
-    #     Method created a decorated box for leaving and joining messages,
-    #     which will be centered at the center within the chat's text box, after inserting
-    #     the decorated label to the text box.
-    #     :param color: a background color
-    #     :param kwargs: more values...
-    #     :return: None
-    #     """
-    #     self.files_textbox.configure(state=NORMAL)
-    #     lbl = Label(self.files_textbox, bd=3, relief='solid', **kwargs, bg=color)
-    #     self.files_textbox.insert(END, lbl)
-    #     self.files_textbox.insert(END, '\n\n')
-    #     self.files_textbox.configure(state=DISABLED)
-    #     self.files_textbox.see(END)
