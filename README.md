@@ -99,14 +99,15 @@ is very similar to reno algorithm.
 
 Unified Modeling Language (UML) :
 
-Click the image for zoom in.
-
-// Put a picture right here 
-
+### Server Directory UML: 
 <p align="center">
-<img align="center" src="" />
+<img align="center" src="https://s7.gifyu.com/images/Server_UML.png" />
 </p>
 
+### Client Directory UML: 
+<p align="center">
+<img align="center" src="https://s7.gifyu.com/images/Client_UML.png" />
+</p>
 
 ---------
 
