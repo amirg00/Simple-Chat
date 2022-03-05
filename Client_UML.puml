@@ -74,7 +74,7 @@ class GUI{
 +set_server_files(server_files)
 +set_files_textBox(textBox: Text)
 +set_username(username)
-set_progress_bar(progress_bar)
++set_progress_bar(progress_bar)
 }
 
 @enduml

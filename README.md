@@ -106,7 +106,7 @@ Unified Modeling Language (UML) :
 
 ### Client Directory UML: 
 <p align="center">
-<img align="center" src="https://s7.gifyu.com/images/Client_UML.png" />
+<img align="center" src="https://s7.gifyu.com/images/Client_UMLbd7e5c4206323673.png" />
 </p>
 
 ---------
