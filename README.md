@@ -65,7 +65,7 @@ unit uses methods to make the queries according to the client's interest,
 these queries will be analyzed in server's side, and the latter
 returns a corresponded response, following the protocol, back to the logic unit.
 ---
-###Fast Reliable UDP Via Go-Back-N With CC
+##Fast Reliable UDP Via Go-Back-N With CC
 <p align="center">
 <img align="center" src="https://s7.gifyu.com/images/Fast_realble_UDP_with_CC.drawio-2.png" />
 </p>
