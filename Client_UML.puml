@@ -7,6 +7,8 @@ class analysis_unit{
 +analysis_msg_main(msg:str)
 }
 
+
+logic --* analysis_unit
 class logic{
 +download_over_tcp_handler(sock:socket, filename:str)
 +download_over_udp_handler(sock:socket, filename:str)
@@ -33,7 +35,46 @@ class RDT_Receiver{
  + prog_bar: ProgressBar
  + FILE_SIZE:int
 --
+ + analysis_data(data:str)
+ + calc_ack(seq:int)
+ + build_ack_packet(ack:int)
+ + main()
+ + update_progress_bar(curr_bytes:int, total:int)
+}
 
+
+
+GUI --* RDT_Receiver
+GUI --* logic
+
+class GUI{
++set_entrance_layout()
++set_chat_layout()
++leave_chat()
++send_button(client_message: Text, to)
++send_message(client_message: Text, to)
++connect_to_chat(SERVER_IP: str, SERVER_PORT: str, USERNAME: str)
++exit()
++download_file(server_files_combobox: Combobox, protocol)
++receive_file_by_TCP(PORT:int, FILENAME:str, FILE_SIZE: int)
++update_progress_bar(curr_bytes:int, total:int)
++log_in_to_chat(sock:socket, username:str)
++listen_to_server(port:int, SERVER_IP:str)
++protocol_message_textbox(choice: int)
++center_label(textbox:Text, **kwargs)
++update_online_user_list()
++update_option_menu()
++update_server_files(files_combobox: Combobox)
++set_server_sock(sock:int)
++set_chat_textBox(text: Text)
++set_users_menu(users_menu)
++set_users_var(users_var)
++set_online_users_list(users_list: list)
++set_server_ip(server_ip)
++set_server_files(server_files)
++set_files_textBox(textBox: Text)
++set_username(username)
+set_progress_bar(progress_bar)
 }
 
 @enduml
