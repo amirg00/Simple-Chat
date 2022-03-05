@@ -2,9 +2,9 @@ import threading
 import time
 from threading import Thread
 from tkinter import *
-from tkinter import messagebox
+from tkinter import messagebox, _setit
 from tkinter.ttk import Combobox, Progressbar
-
+from tkinter import ttk
 
 import analysis_unit
 import logic
@@ -19,7 +19,7 @@ class GUI:
         self.send_server_sock = None
         self.chat_textBox = None
         self.files_textBox = None
-        self.tranfer_progress_bar = None
+        self.transfer_progress_bar = None
         self.percentages = None
         self.users_menu = None
         self.users_var = None
@@ -64,8 +64,7 @@ class GUI:
         label = Label(self.connect_window,
                       text="Fill up the address, port, and username,\n then click connect button.",
                       justify=CENTER,
-                      font=('Helvetica', 13, 'bold'),
-                      background="blue")
+                      font=('Helvetica', 13, 'bold'))
         # label.pack()
         label.place(x=90, y=150)
 
@@ -126,17 +125,19 @@ class GUI:
         self.chat_window.geometry("750x500")
         self.chat_window.title("Chat Room")
         self.chat_window.resizable(width=False, height=False)
-        canvas = Canvas(self.chat_window, width=750, height=500)
-        canvas.pack()
+        self.chat_window.configure(bg="#ACADA8")
+
+        # canvas = Canvas(self.chat_window, width=750, height=500, bg="#ACADA8")
+        # canvas.pack()
 
         # Add lines in canvas widget
-        canvas.create_line(0, 10, 375, 10, fill="black", width=2)
-        canvas.create_line(375, 10, 375, 380, fill="black", width=2)
-        canvas.create_line(0, 380, 375, 380, fill="black", width=2)
-        canvas.create_line(3, 10, 3, 380, fill="black", width=2)
+        # canvas.create_line(0, 10, 375, 10, fill="black", width=2)
+        # canvas.create_line(375, 10, 375, 380, fill="black", width=2)
+        # canvas.create_line(0, 380, 375, 380, fill="black", width=2)
+        # canvas.create_line(3, 10, 3, 380, fill="black", width=2)
 
         text_chat = Text(self.chat_window,
-                         # bg="#17202A",
+                         # bg="#ACADA8",
                          # fg="#EAECEE",
                          font="Helvetica 10",
                          padx=1,
@@ -170,13 +171,20 @@ class GUI:
                          height=40,
                          width=320)
 
+        # style for the OptionMenu:
+        style = ttk.Style()
+        style.configure("TMenubutton", background="#ACADA8", activebackground="#ACADA8")
+
         # choose list of the online clients.
         clicked = StringVar()
-        users_menu = OptionMenu(self.chat_window,
-                                clicked,
-                                "everyone",
-                                *self.chat_online_users)
+        users_menu = ttk.OptionMenu(self.chat_window,
+                                    clicked,
+                                    default="everyone",
+                                    *self.chat_online_users,
+                                    style="TMenubutton")
         users_menu.configure(cursor="hand2")
+        # users_menu.config(bg="#ACADA8", highlightthickness=0)
+        # users_menu['menu'].config(bg="#ACADA8")
         users_menu.place(x=50,
                          y=385,
                          height=25,
@@ -213,10 +221,10 @@ class GUI:
                               command=lambda: self.leave_chat())
         leave_button.bind("<Enter>", lambda e: leave_button.config(fg='white', bg='#ff2929', cursor="hand2"))
         leave_button.bind("<Leave>", lambda e: leave_button.config(fg='black', bg='red', cursor="arrow"))
-        leave_button.place(x=0,
+        leave_button.place(x=-1,
                            y=470,
                            height=30,
-                           width=65)
+                           width=66)
         # Files buttons:
         # files combo-box:
         server_files = Combobox(self.chat_window,
@@ -276,7 +284,7 @@ class GUI:
         files_textBox.config(yscrollcommand=scroll_bar.set)
         scroll_bar.config(command=files_textBox.yview, cursor="hand2")
 
-        labelframe = LabelFrame(self.chat_window, text="Protocol")
+        labelframe = LabelFrame(self.chat_window, text="Protocol", bg="#ACADA8")
         labelframe.pack()
         labelframe.place(x=420,
                          y=400,
@@ -287,17 +295,22 @@ class GUI:
                     text='TCP',
                     variable=choice,
                     value=1,
+                    bg="#ACADA8",
+                    activebackground="#ACADA8",
                     command=lambda: self.protocol_message_textbox(choice.get())).pack()
         Radiobutton(labelframe,
                     text='UDP',
                     variable=choice,
                     value=2,
+                    bg="#ACADA8",
+                    activebackground="#ACADA8",
                     command=lambda: self.protocol_message_textbox(choice.get())).pack()
 
         # labels:
         curr_user = Label(self.chat_window,
                           text="Me to: ",
-                          font=('Helvetica', 12, 'bold'))
+                          font=('Helvetica', 12, 'bold'),
+                          bg="#ACADA8")
         curr_user.place(x=0, y=385)
 
         # progress bar:
@@ -307,7 +320,7 @@ class GUI:
                                    length=280)
         self.set_progress_bar(progress_bar)
         progress_bar.place(x=420, y=375)
-        self.percentages = Label(self.chat_window, text="%")
+        self.percentages = Label(self.chat_window, text="%", bg="#ACADA8")
         self.percentages.place(x=705, y=375)
 
     # -------------------------------------------------
@@ -463,7 +476,7 @@ class GUI:
         if protocol == "UDP":
             port, FILE_SIZE = logic.logic(option=logic.DOWNLOAD_OVER_UDP, sock=self.send_server_sock, filename=FILENAME)
             rdt = RDT_Receiver(port, self.server_ip, FILENAME, self.USERNAME, self.files_textBox, self.percentages,
-                               self.tranfer_progress_bar, self.chat_window, FILE_SIZE)
+                               self.transfer_progress_bar, self.chat_window, FILE_SIZE)
             download_thread_over_udp = Thread(target=rdt.main, args=())
             download_thread_over_udp.start()
         else:
@@ -501,11 +514,11 @@ class GUI:
 
     def update_progress_bar(self, curr_bytes, total):
         self.chat_window.update_idletasks()
-        curr_percentages = round((curr_bytes/total) * 100)
+        curr_percentages = round((curr_bytes / total) * 100)
         print(curr_percentages)
-        self.tranfer_progress_bar['value'] = curr_percentages
-        self.percentages['text'] = f"{self.tranfer_progress_bar['value']}%"
-        # txt['text'] = self.tranfer_progress_bar['value'], '%'
+        self.transfer_progress_bar['value'] = curr_percentages
+        self.percentages['text'] = f"{self.transfer_progress_bar['value']}%"
+        # txt['text'] = self.transfer_progress_bar['value'], '%'
 
     def log_in_to_chat(self, sock, username) -> int:
         """
@@ -657,8 +670,8 @@ class GUI:
             self.chat_online_users.insert(0, "everyone")
         for user in self.chat_online_users:
             print(user)
-            menu.add_command(label=user,
-                             command=lambda value=user: self.users_var.set(value))
+            menu.add_radiobutton(label=user,
+                                 command=_setit(self.users_var, user))
 
     def update_server_files(self, files_combobox: Combobox):
         files = logic.logic(logic.FILES_LIST_OPTION, self.send_server_sock)
@@ -712,7 +725,7 @@ class GUI:
         self.USERNAME = username
 
     def set_progress_bar(self, progress_bar):
-        self.tranfer_progress_bar = progress_bar
+        self.transfer_progress_bar = progress_bar
 
 
 if __name__ == "__main__":

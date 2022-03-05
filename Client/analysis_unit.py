@@ -30,7 +30,6 @@ def analysis_confirms_msg(type_code, msg):
         msg = msg[2:]
         username = msg[:username_len]
         msg = msg[username_len:]
-
         # take port from server
         port = int(msg[:])
         # print(f"Connect success! username: {username} port for you at server: {port}") --TRY WITHOUT PRINTING

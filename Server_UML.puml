@@ -1,0 +1,81 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+main --*Server
+class main{
++main()
+}
+
+class Client{
+-name : str
+-socket : socket
+-listening_socket:socket : socket
+-server_listening_socket : socket
+-PORT : int
+---
++ get_name()
++ get_socket()
++get_listening_socket()
++get_server_listening_socket()
++get_PORT()
++set_PORT(port: int)
+}
+
+
+class Protocol{}
+
+class RDT_Sender{
++ KB : int
++ PACKET_SIZE:int
++ SERVER_PORT:int
++ SERVER_IP: str
++ SERVER_ADDRESS: str, int
++ sock:socket
++ CLIENT_ADDRESS : str, int
++ FILE_NAME : str
++ file : File
++ window : lst
++ WINDOW_SIZE: int
++ MAX_WINDOW_SIZE:int
++ can_window_slide:bool
++ ack : int
++ next_seq : int
++ last_packet_acked : bool
+---
++ build_packet()
++ send_packet()
++ reduce_window()
++ retransmission()
++ set_next_seq()
++ is_last_ack()
++ go_back_n_loop()
++ go_back_n_options(case : int)
++ main()
+}
+
+Server --* RDT_Sender
+Server --* Client
+Server --* Protocol
+
+class Server{
+-ip:int
+-listening_socket:socket
+-connected_clients:dict
+-users_max_amount: int
+-files:lst
+-allocated_ports:dict
+---
++start_listen()
++clients_service(client_socket : socket)
++analyse_data_by_protocol(message : str, client_socket : socket)
++run_rdt(rdt_ref : RDT_Sender, port: int)
++send_file_by_TCP(allocated_port : int, filename:str)
++check_valid_username(username:str)
++send_broadcast_message(code:str, username:str, user_len:int, message:str, msg_len:int)
++fix_len(XX : int)
++get_available_port()
++redeem_user_port(username:str)
++update_server_files()
+}
+
+@enduml

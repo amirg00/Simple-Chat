@@ -1,0 +1,39 @@
+@startuml
+
+class analysis_unit{
++analysis_confirms_msg(type_code:str, msg:str)
++analysis_updates_msg(type_code:str, msg:str)
++analysis_errors_msg(type_code:str, msg:str)
++analysis_msg_main(msg:str)
+}
+
+class logic{
++download_over_tcp_handler(sock:socket, filename:str)
++download_over_udp_handler(sock:socket, filename:str)
++files_list_handler(sock:socket)
++users_list_handler(sock:socket)
++send_msg_handler(sock:socket, msg_to_user, tar_username:str)
++send_msg_broadcast_handler(sock:socket, msg_to_everyone:str)
++disconnect_handler(sock:socket)
++logic(option:int, sock:socket, message=None, target=None, filename=None)
+}
+
+class RDT_Receiver{
+ +KB:int
+ +PORT
+ + FILENAME: str
+ + file:File
+ + ADDRESS: str, int
+ + sock:socket
+ + WINDOW_SIZE:int
+ + last_is_order:bool
+ + files_textbox:Text
+ + chat_window
+ + per_lbl:Label
+ + prog_bar: ProgressBar
+ + FILE_SIZE:int
+--
+
+}
+
+@enduml
