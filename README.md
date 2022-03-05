@@ -64,7 +64,9 @@ the commands arrived from the graphical interface (GUI). The logic
 unit uses methods to make the queries according to the client's interest,
 these queries will be analyzed in server's side, and the latter
 returns a corresponded response, following the protocol, back to the logic unit.
+
 ---
+
 ## Fast Reliable UDP Via Go-Back-N With CC Algorithm
 
 
@@ -134,7 +136,7 @@ To run the client through terminal write the following command:
 Simple-Chat/Client/GUI.py
 ```
 
-###Running Example
+### Running Example
 
 Such an example can be found in the project book. 
 
