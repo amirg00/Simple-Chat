@@ -1,18 +1,18 @@
 # ---------PROTOCOL_MESSAGES--------#
-# PROTOCOL CODES                   #
-GET = "1"  #
-CONFIRM = "2"  #
-UPDATE = "3"  #
-ERROR = "4"  #
-#
-# PROTOCOL TYPE CODES              #
-CONNECT_CODE = "00"  #
-DISCONNECT_CODE = "01"  #
-USERS_LIST_CODE = "02"  #
-SEND_MSG_CODE = "03"  #
-SEND_BROADCAST_MSG_CODE = "04"  #
-FILES_LIST_CODE = "05"
-DOWNLOAD_FILE = "06"
+# PROTOCOL CODES                    #
+GET = "1"                           #
+CONFIRM = "2"                       #
+UPDATE = "3"                        #
+ERROR = "4"                         #
+                                    #
+# PROTOCOL TYPE CODES               #
+CONNECT_CODE = "00"                 #
+DISCONNECT_CODE = "01"              #
+USERS_LIST_CODE = "02"              #
+SEND_MSG_CODE = "03"                #
+SEND_BROADCAST_MSG_CODE = "04"      #
+FILES_LIST_CODE = "05"              #
+DOWNLOAD_FILE = "06"                #
 # ----------------------------------#
 
 
@@ -32,12 +32,10 @@ def analysis_confirms_msg(type_code, msg):
         msg = msg[username_len:]
         # take port from server
         port = int(msg[:])
-        # print(f"Connect success! username: {username} port for you at server: {port}") --TRY WITHOUT PRINTING
         return username, port
 
     # for msg start with 201
     if type_code == DISCONNECT_CODE:
-        # print("Logout success.") --TRY WITHOUT PRINTING
         return True
 
     # for msg start with 202
@@ -45,7 +43,7 @@ def analysis_confirms_msg(type_code, msg):
         # reset list
         connected_users_list = []
 
-        # check if there friends in chat rigth now
+        # check if there friends in chat right now
         users_exist = int(msg[:1])
         msg = msg[1:]
 
@@ -53,19 +51,16 @@ def analysis_confirms_msg(type_code, msg):
         if users_exist:
             users_amount = int(msg[:1])
             msg = msg[1:]
-            # print("Users in chat: ") --TRY WITHOUT PRINTING
             for i in range(users_amount):
                 username_len = int(msg[:2])
                 msg = msg[2:]
                 username = msg[:username_len]
                 msg = msg[username_len:]
                 connected_users_list.append(username)  # update users list
-                # print(username) --TRY WITHOUT PRINTING
         return connected_users_list
 
     # for msg start with 203
     if type_code == SEND_MSG_CODE:
-        # print("Your message was sent!") --TRY WITHOUT PRINTING
         return True
 
     # for msg start with 204
@@ -76,13 +71,11 @@ def analysis_confirms_msg(type_code, msg):
         if users_exist:
             users_amount = int(msg[:1])
             msg = msg[1:]
-            # print("Users was get your message: ") --TRY WITHOUT PRINTING
             for i in range(users_amount):
                 username_len = int(msg[:2])
                 msg = msg[2:]
                 username = msg[:username_len]
                 msg = msg[username_len:]
-                # print(username) --TRY WITHOUT PRINTING
                 users_got_msg.append(username)
 
         return users_got_msg
@@ -157,7 +150,6 @@ def analysis_updates_msg(type_code, msg):
         msg = msg[2:]
 
         new_msg = msg[:new_msg_len]
-        # print(f"{username}: {new_msg}") --TRY WITHOUT PRINTING
         return type_code, username, new_msg
 
     # for msg start with 304
@@ -172,7 +164,6 @@ def analysis_updates_msg(type_code, msg):
         msg = msg[2:]
 
         new_msg = msg[:new_msg_len]
-        # print(f"{username sent everyone}: {new_msg}") --TRY WITHOUT PRINTING
         return type_code, username, new_msg
 
 
