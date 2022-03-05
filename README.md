@@ -66,7 +66,7 @@ these queries will be analyzed in server's side, and the latter
 returns a corresponded response, following the protocol, back to the logic unit.
 
 ---
-<!-- Fast Reliable UDP Via Go-Back-N With CC Algorithm -->
+<!-- fast reliable udp via go-back-n with cc algorithm -->
 
 ## Fast Reliable UDP Via Go-Back-N With CC Algorithm
 
