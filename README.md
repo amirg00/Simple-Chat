@@ -28,7 +28,7 @@ we had to append a file transferring layer above UDP, with CC (i.e. congestion c
 and applying an RDT (i.e. reliable data transfer) protocol, such as: 'stop and wait', 'go back N', and so on... 
 
 
-----------------
+---------------
 
 <!-- System's Structure -->
 ## System's Structure
@@ -66,6 +66,7 @@ these queries will be analyzed in server's side, and the latter
 returns a corresponded response, following the protocol, back to the logic unit.
 
 ---
+<!-- Fast Reliable UDP Via Go-Back-N With CC Algorithm -->
 
 ## Fast Reliable UDP Via Go-Back-N With CC Algorithm
 
