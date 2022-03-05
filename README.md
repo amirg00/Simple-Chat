@@ -70,6 +70,12 @@ returns a corresponded response, following the protocol, back to the logic unit.
 
 ## Fast Reliable UDP Via Go-Back-N With CC Algorithm
 
+Here are the states diagrams of the sender (server in our case) and receiver (client in our case),
+for our implementation for sending and receiving files over Fast Reliable UDP via Go-Back-N
+protocol, and CC (Congestion Control) algorithm. 
+
+In addition, the CC algorithm we have implemented 
+is very similar to reno algorithm. 
 
 ### Sender's Side
 <p align="center">
