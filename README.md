@@ -7,7 +7,7 @@
   <ol>
     <li><a href="#about-the-project">About The Project</a></li>
     <li><a href="#System's Structure">System's Structure</a></li>
-    <li><a href="#algorithms">Fast Reliable UDP Via Go-Back-N With CC Algorithm</a></li>
+    <li><a href="#Fast Reliable UDP Via Go-Back-N With CC Algorithm">Fast Reliable UDP Via Go-Back-N With CC Algorithm</a></li>
     <li><a href="#code-details">Code Details</a></li>
     <li><a href="#how-to-run">How  to run</a></li>
     <li><a href="#languages-and-tools">Languages and Tools</a></li>
