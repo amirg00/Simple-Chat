@@ -6,7 +6,7 @@
   <summary>Content</summary>
   <ol>
     <li><a href="#about-the-project">About The Project</a></li>
-    <li><a href="#plot-graph">System's Structure</a></li>
+    <li><a href="#System's Structure">System's Structure</a></li>
     <li><a href="#algorithms">Fast Reliable UDP Via Go-Back-N With CC Algorithm</a></li>
     <li><a href="#code-details">Code Details</a></li>
     <li><a href="#how-to-run">How  to run</a></li>
