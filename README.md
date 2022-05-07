@@ -193,6 +193,7 @@ _**Python Version:**_ ```3.9```
  <code><img height="40" width="40" src="https://raw.githubusercontent.com/github/explore/80688e429a7d4ef2fca1e82350fe8e3517d3494d/topics/terminal/terminal.png"></code>
  <code><img height="40" width="40" src="https://upload.wikimedia.org/wikipedia/commons/b/b6/PuTTY_icon_128px.png"></code>
  <code><img height="40" width="40" src="https://media.trustradius.com/product-logos/dT/3e/JWKABGMWXUZ3.PNG"></code>
+ <code><img height="40" width="40" src="https://drawio-app.com/wp-content/uploads/2021/05/drawio_logo_RGB_symbol_large.png"></code>
  </div>
 
 
@@ -206,10 +207,10 @@ _**Python Version:**_ ```3.9```
 * [Git](https://git-scm.com/)
 * [Pycharm](https://www.jetbrains.com/pycharm/)
 * [Git-scm](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
-
+* [Draw.io](https://drawio-app.com/)
 
 <!-- CONTACT -->
-## Contact <small>[Top▲](object-oriented-programming-exercise-3)</small>
+## Contact <small>[Top▲](Simple Chat)</small>
 
 
  Amir - [here](https://github.com/amirg00/)
