@@ -194,6 +194,7 @@ _**Python Version:**_ ```3.9```
  <code><img height="40" width="40" src="https://upload.wikimedia.org/wikipedia/commons/b/b6/PuTTY_icon_128px.png"></code>
  <code><img height="40" width="40" src="https://media.trustradius.com/product-logos/dT/3e/JWKABGMWXUZ3.PNG"></code>
  <code><img height="40" width="40" src="https://drawio-app.com/wp-content/uploads/2021/05/drawio_logo_RGB_symbol_large.png"></code>
+ <code><img height="40" width="40" src="https://upload.wikimedia.org/wikipedia/commons/f/f5/Notepad_plus_plus.png"></code> 
  </div>
 
 
