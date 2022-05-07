@@ -218,7 +218,7 @@ _**Python Version:**_ ```3.9```
 
 Project Link: [here](https://github.com/amirg00/Simple-Chat)
 
-Project book: [here](https://github.com/amirg00/Simple-Chat/Resources/Project_Book.pdf)
+Project book: [here](/Resources/Project_Book.pdf)
 ___
 
 Copyright © _This Project last modified on March 5, 2022, by [Amir](https://github.com/amirg00/) & [Simcha](https://github.com/SimchaTeich)_.
